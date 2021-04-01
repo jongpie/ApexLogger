@@ -9,7 +9,7 @@
  */
 public without sharing class LogEntryEventHandler {
     private static final Map<String, Log__c> TRANSACTION_ID_TO_LOG = new Map<String, Log__c>();
-    private static final String TOPICS_DELIMITER = ',';
+    private static final String TOPICS_DELIMITER = '\n';
     private static final List<LogEntryTopicAssignment__mdt> TOPIC_ASSIGNMENT_RULES = getTopicAssignmentRules();
 
     @TestVisible
@@ -227,7 +227,7 @@ public without sharing class LogEntryEventHandler {
                 }
 
                 if (matches == true) {
-                    List<String> cmdtTopics = rule.Topics__c.split('\n');
+                    List<String> cmdtTopics = rule.Topics__c.split(TOPICS_DELIMITER);
                     this.topicNames.addAll(cmdtTopics);
                     Set<String> logEntryTopics = logEntryIdToTopics.get(logEntry.Id);
                     if (logEntryTopics == null) {
