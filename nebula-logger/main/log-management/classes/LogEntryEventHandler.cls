@@ -9,17 +9,21 @@
  */
 public without sharing class LogEntryEventHandler {
     private static final Map<String, Log__c> TRANSACTION_ID_TO_LOG = new Map<String, Log__c>();
+    private static final String TOPICS_DELIMITER = ',';
+    private static final List<LogEntryTopicAssignment__mdt> TOPIC_ASSIGNMENT_RULES = getTopicAssignmentRules();
 
     @TestVisible
     private static Boolean shouldCallStatusApi = Test.isRunningTest() == false;
 
     private List<LogEntry__c> logEntries;
-    private Map<LogEntry__c, List<String>> logEntryToTopics;
+    private Map<Id, LogEntry__c> logEntryIdToLogEntry = new Map<Id, LogEntry__c>();
+    private Map<Id, Set<String>> logEntryIdToTopics;
     private Set<String> topicNames;
 
     public LogEntryEventHandler() {
         this.logEntries = new List<LogEntry__c>();
-        this.logEntryToTopics = new Map<LogEntry__c, List<String>>();
+        this.logEntryIdToLogEntry = new Map<Id, LogEntry__c>();
+        this.logEntryIdToTopics = new Map<Id, Set<String>>();
         this.topicNames = new Set<String>();
     }
 
@@ -30,6 +34,7 @@ public without sharing class LogEntryEventHandler {
             when AFTER_INSERT {
                 this.upsertLogs(logEntryEvents);
                 this.insertLogEntries(logEntryEvents);
+                this.appendCmdtTopics();
                 this.insertTopics();
             }
         }
@@ -108,7 +113,12 @@ public without sharing class LogEntryEventHandler {
         upsert TRANSACTION_ID_TO_LOG.values() TransactionId__c;
 
         // If no recent logs have the details, and there is not another instance of the job in progress, then start a new one
-        if (shouldCallStatusApi == true && LoggerSettings__c.getOrgDefaults().EnableStatusApiCallout__c && recentLogWithApiReleaseDetails == null && getCountOfOpenJobs() == 0) {
+        if (
+            shouldCallStatusApi == true &&
+            LoggerSettings__c.getOrgDefaults().EnableStatusApiCallout__c &&
+            recentLogWithApiReleaseDetails == null &&
+            getCountOfOpenJobs() == 0
+        ) {
             setStatusApiDetails();
         }
     }
@@ -180,16 +190,63 @@ public without sharing class LogEntryEventHandler {
 
             this.logEntries.add(logEntry);
 
-            if (logEntryEvent.Topics__c != null) {
-                this.topicNames.addAll(logEntryEvent.Topics__c.split(','));
-                this.logEntryToTopics.put(logEntry, LogEntryEvent.Topics__c.split(','));
-            }
         }
 
         insert this.logEntries;
+        this.logEntryIdToLogEntry = new Map<Id, LogEntry__c>(this.logEntries);
+
+        for (Integer i = 0; i < logEntryEvents.size(); i++) {
+            LogEntryEvent__e logEntryEvent = logEntryEvents.get(i);
+
+            if (logEntryEvent.Topics__c != null) {
+                List<String> logEntryTopicNames = new List<String>();
+                for (String topicName : logEntryEvent.Topics__c.split(TOPICS_DELIMITER)) {
+                    logEntryTopicNames.add(topicName.trim());
+                }
+
+                this.topicNames.addAll(logEntryTopicNames);
+                this.logEntryIdToTopics.put(this.logEntries.get(i).Id, new Set<String>(logEntryTopicNames));
+            }
+        }
+    }
+
+    private void appendCmdtTopics() {
+        for (LogEntry__c logEntry : this.logEntries) {
+            for (LogEntryTopicAssignment__mdt rule : TOPIC_ASSIGNMENT_RULES) {
+                Boolean matches;
+                switch on rule.FieldOperation__c {
+                    when 'CONTAINS' {
+                        matches = String.valueOf(logEntry.get(rule.LoggerField__r.QualifiedApiName)).contains(rule.FieldValue__c);
+                    }
+                    when 'EQUALS' {
+                        matches = logEntry.get(rule.LoggerField__r.QualifiedApiName) == rule.FieldValue__c;
+                    }
+                    when 'STARTS_WITH' {
+                        matches = String.valueOf(logEntry.get(rule.LoggerField__r.QualifiedApiName)).startsWith(rule.FieldValue__c);
+                    }
+                }
+
+                if (matches == true) {
+                    List<String> cmdtTopics = rule.Topics__c.split('\n');
+                    this.topicNames.addAll(cmdtTopics);
+                    Set<String> logEntryTopics = logEntryIdToTopics.get(logEntry.Id);
+                    if (logEntryTopics == null) {
+                        logEntryTopics = new Set<String>();
+                    }
+                    logEntryTopics.addAll(cmdtTopics);
+
+                    this.logEntryIdToTopics.put(logEntry.Id, logEntryTopics);
+                    this.topicNames.addAll(logEntryTopics);
+                }
+            }
+        }
     }
 
     private void insertTopics() {
+        System.debug('insertTopics startings');
+        System.debug('this.topicNames ==' + this.topicNames);
+        System.debug('this.logEntryIdToTopics ==' + this.logEntryIdToTopics);
+
         if (this.topicNames.isEmpty()) {
             return;
         }
@@ -209,27 +266,56 @@ public without sharing class LogEntryEventHandler {
             topicsToCreate.add(new Topic(Name = topicName));
         }
         if (!topicsToCreate.isEmpty()) {
-            insert topicsToCreate;
+            Database.insert(topicsToCreate, false);
             for (Topic topic : topicsToCreate) {
-                topicNameToTopics.put(topic.Name, topic);
+                if (topic.Id != null) {
+                    topicNameToTopics.put(topic.Name, topic);
+                }
             }
+        }
+        // TODO cleanup/eliminate duplicate query
+        for (Topic topic : [SELECT Id, Name FROM Topic WHERE Name IN :this.topicNames]) {
+            topicNameToTopics.put(topic.Name, topic);
         }
 
         // Assign the topics to the records
         Set<TopicAssignment> topicAssignments = new Set<TopicAssignment>();
-        for (LogEntry__c logEntry : logEntryToTopics.keySet()) {
-            for (String topicName : logEntryToTopics.get(logEntry)) {
+        for (Id logEntryId : logEntryIdToTopics.keySet()) {
+            System.debug('logEntryIdToTopics.get(logEntry)==' + logEntryIdToTopics.get(logEntryId));
+            Set<String> logEntryTopics = logEntryIdToTopics.get(logEntryId);
+
+            if (logEntryTopics == null) {
+                continue;
+            }
+
+            LogEntry__c logEntry = this.logEntryIdToLogEntry.get(logEntryId);
+
+            for (String topicName : logEntryTopics) {
+                Topic topic = topicNameToTopics.get(topicName);
+
+                // TODO this guard clause shouldn't be necessary - remove?
+                if (topic == null) {
+                    continue;
+                }
+
                 // Add log entry-specific topics
-                topicAssignments.add(new TopicAssignment(EntityId = logEntry.Id, TopicId = topicNameToTopics.get(topicName).Id));
+                topicAssignments.add(new TopicAssignment(EntityId = logEntryId, TopicId = topic.Id));
 
                 // Add all topics to the parent log when enabled
-                topicAssignments.add(new TopicAssignment(EntityId = logEntry.Log__c, TopicId = topicNameToTopics.get(topicName).Id));
+                topicAssignments.add(new TopicAssignment(EntityId = logEntry.Log__c, TopicId = topic.Id));
             }
         }
         insert new List<TopicAssignment>(topicAssignments);
     }
 
     // Private static methods
+    private static List<LogEntryTopicAssignment__mdt> getTopicAssignmentRules() {
+        return [
+            SELECT Id, LoggerField__r.QualifiedApiName, FieldOperation__c, FieldValue__c, Topics__c
+            FROM LogEntryTopicAssignment__mdt
+            WHERE IsActive__c = TRUE AND LoggerObject__r.DeveloperName = 'LogEntry'
+        ];
+    }
     private static Log__c getRecentLogWithApiReleaseDetails() {
         // Query for recent logs created only today - the status API should be called...
         // ...at least once per day to make sure that status details are still accurate.
