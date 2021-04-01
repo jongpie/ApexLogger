@@ -20,6 +20,11 @@
                 <default>false</default>
                 <label>EQUALS</label>
             </value>
+            <value>
+                <fullName>STARTS_WITH</fullName>
+                <default>false</default>
+                <label>STARTS_WITH</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
