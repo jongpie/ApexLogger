@@ -1,6 +1,6 @@
 # Nebula Logger for Salesforce
 [![Deployment](https://github.com/jongpie/NebulaLogger/actions/workflows/deploy.yml/badge.svg)](https://github.com/jongpie/NebulaLogger/actions/workflows/deploy.yml)
-[![Logger Code Coverage](https://codecov.io/gh/jongpie/NebulaLogger/branch/master/graph/badge.svg?token=1DJPDRM3N4)](https://codecov.io/gh/jongpie/NebulaLogger)
+[![codecov](https://codecov.io/gh/jongpie/NebulaLogger/branch/main/graph/badge.svg?token=1DJPDRM3N4)](https://codecov.io/gh/jongpie/NebulaLogger)
 
 Designed for Salesforce admins, developers & architects. A robust logger for Apex, Flow, Process Builder & Integrations.
 
