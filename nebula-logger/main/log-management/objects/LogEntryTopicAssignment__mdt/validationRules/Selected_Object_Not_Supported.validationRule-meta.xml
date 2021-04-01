@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Selected_Object_Not_Supported</fullName>
+    <active>true</active>
+    <description>Only LogEntry__c object is currently supported</description>
+    <errorConditionFormula>LoggerObject__r.DeveloperName != &apos;LogEntry&apos;</errorConditionFormula>
+    <errorDisplayField>LoggerObject__c</errorDisplayField>
+    <errorMessage>Only LogEntry__c object is currently supported</errorMessage>
+</ValidationRule>

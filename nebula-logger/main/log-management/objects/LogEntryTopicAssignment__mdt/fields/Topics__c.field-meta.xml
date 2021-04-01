@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Topics__c</fullName>
+    <description>1 or more Topics to assign - each Topic should be listed on a separate line.</description>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>1 or more Topics to assign - each Topic should be listed on a separate line.</inlineHelpText>
+    <label>Topic(s) to Assign</label>
+    <length>32768</length>
+    <type>LongTextArea</type>
+    <visibleLines>5</visibleLines>
+</CustomField>

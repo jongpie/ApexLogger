@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>FieldOperation__c</fullName>
+    <externalId>false</externalId>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <label>Field Operation</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>CONTAINS</fullName>
+                <default>false</default>
+                <label>CONTAINS</label>
+            </value>
+            <value>
+                <fullName>EQUALS</fullName>
+                <default>false</default>
+                <label>EQUALS</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
