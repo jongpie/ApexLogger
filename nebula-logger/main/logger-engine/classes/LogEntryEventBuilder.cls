@@ -794,7 +794,7 @@ global with sharing class LogEntryEventBuilder {
         // De-duplicate the list of topics
         topics = new List<String>(new Set<String>(topics));
 
-        String topicsString = String.escapeSingleQuotes(String.join(topics, ','));
+        String topicsString = String.escapeSingleQuotes(String.join(topics, '\n'));
         return truncateFieldValue(Schema.LogEntryEvent__e.Topics__c, topicsString);
     }
 
