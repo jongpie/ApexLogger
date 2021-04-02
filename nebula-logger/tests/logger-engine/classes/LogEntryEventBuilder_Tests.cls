@@ -51,6 +51,46 @@ private class LogEntryEventBuilder_Tests {
         Boolean shouldSave = false;
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.DEBUG, shouldSave);
 
+        // Variables for the various parameters
+        User currentUser = new User(Id = UserInfo.getUserId());
+        List<User> userList = new List<User>{currentUser};
+        Database.DeleteResult deleteResult;
+        Database.MergeResult mergeResult;
+        Database.SaveResult saveResult;
+        Database.UpsertResult upsertResult;
+        Database.UndeleteResult undeleteResult;
+        List<Database.DeleteResult> deleteResults;
+        List<Database.MergeResult> mergeResults;
+        List<Database.SaveResult> saveResults;
+        List<Database.UpsertResult> upsertResults;
+        List<Database.UndeleteResult> undeleteResults;
+
+        Test.startTest();
+
+        builder.setMessage(new LogMessage('String {0}', 'replacement'));
+        builder.setMessage('message');
+        builder.setExceptionDetails(new DmlException());
+        builder.setDatabaseResult(deleteResult);
+        builder.setDatabaseResult(mergeResult);
+        builder.setDatabaseResult(saveResult);
+        builder.setDatabaseResult(upsertResult);
+        builder.setDatabaseResult(undeleteResult);
+        builder.setDatabaseResult(deleteResults);
+        builder.setDatabaseResult(mergeResults);
+        builder.setDatabaseResult(saveResults);
+        builder.setDatabaseResult(upsertResults);
+        builder.setDatabaseResult(undeleteResults);
+        builder.setRecordId(currentUser.Id);
+        builder.setRecordId(currentUser);
+        builder.setRecord(currentUser.Id);
+        builder.setRecord(currentUser);
+        builder.setRecord(userList);
+        builder.addTopic('topic');
+        builder.setTopics(new List<String>{'topic-1', 'topic-2'});
+        builder.parseStackTrace(new DmlException().getStackTraceString());
+
+        Test.stopTest();
+
         System.assertEquals(null, builder.getLogEntryEvent());
         System.assertEquals(null, builder.setMessage('test').getLogEntryEvent());
         System.assertEquals(null, builder.setExceptionDetails(new IllegalArgumentException('test')).getLogEntryEvent());
