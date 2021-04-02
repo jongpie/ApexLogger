@@ -28,6 +28,7 @@ global with sharing class LogEntryEventBuilder {
 
     private Boolean detailsAreSet = false;
     private Boolean shouldSave;
+    private List<String> topics = new List<String>();
 
     /**
      * @description Used by `Logger` to instantiate a new instance of `LogEntryEventBuilder`
@@ -382,6 +383,20 @@ global with sharing class LogEntryEventBuilder {
     }
 
     /**
+     * @description Appends the topic to the existing list of topics
+     * @param  topics The string to use as a topic for the current entry
+     * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
+     */
+    public LogEntryEventBuilder addTopic(String topic) {
+        if (this.shouldSave == false || String.isBlank(topic)) {
+            return this;
+        }
+
+        this.topics.add(topic);
+        return this;
+    }
+
+    /**
      * @description Sets a comma-separate list of strings on the LogEntryEvent__e, which ultimately becomes Topic & TopicAssignment records on Log__c and LogEntry__c
      * @param  topics The list of strings to use as topics for the current entry
      * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
@@ -391,7 +406,7 @@ global with sharing class LogEntryEventBuilder {
             return this;
         }
 
-        this.logEntryEvent.Topics__c = getTopicsString(topics);
+        this.topics = new List<String>(topics);
         return this;
     }
 
@@ -473,6 +488,8 @@ global with sharing class LogEntryEventBuilder {
 
             this.detailsAreSet = true;
         }
+
+        this.logEntryEvent.Topics__c = getTopicsString(topics);
 
         // Salesforce does not provide precise datetimes in Apex triggers for platform events
         // Set the string value of timestamp to a second field as a workaround
@@ -785,6 +802,6 @@ global with sharing class LogEntryEventBuilder {
         // TODO remove (help reduce CPU usage)
         // topics = new List<String>(new Set<String>(topics));
 
-        return String.escapeSingleQuotes(String.join(topics, '\n'));
+        return String.join(topics, '\n');
     }
 }

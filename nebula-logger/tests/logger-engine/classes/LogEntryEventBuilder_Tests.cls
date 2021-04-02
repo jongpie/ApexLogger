@@ -758,6 +758,41 @@ private class LogEntryEventBuilder_Tests {
     }
 
     @isTest
+    static void it_should_add_topic_string() {
+        LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
+        System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
+
+        String topic = 'something';
+
+        Test.startTest();
+        builder.addTopic(topic);
+        Test.stopTest();
+
+        System.assertEquals(topic, builder.getLogEntryEvent().Topics__c);
+    }
+
+    @isTest
+    static void it_should_add_topic_string_to_existing_list_of_topics() {
+        LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
+        System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
+
+        List<String> originalTopics = new List<String>{ 'some-topic', 'another One', 'here\'s one more!' };
+        builder.setTopics(originalTopics);
+        System.assertEquals(String.join(originalTopics, '\n'), builder.getLogEntryEvent().Topics__c);
+
+        String topic = 'something';
+
+        Test.startTest();
+        builder.addTopic(topic);
+        Test.stopTest();
+
+        List<String> expectedTopics = new List<String>(originalTopics);
+        expectedTopics.add(topic);
+        String expectedTopicsString = String.join(expectedTopics, '\n');
+        System.assertEquals(expectedTopicsString, builder.getLogEntryEvent().Topics__c);
+    }
+
+    @isTest
     static void it_should_set_topics_string_for_list_of_topics() {
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
         System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
@@ -769,23 +804,7 @@ private class LogEntryEventBuilder_Tests {
 
         Test.stopTest();
 
-        String expectedTopicsString = String.escapeSingleQuotes(String.join(topics, ','));
-        System.assertEquals(expectedTopicsString, builder.getLogEntryEvent().Topics__c);
-    }
-
-    @isTest
-    static void it_should_deduplicate_topics() {
-        LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
-        System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
-
-        Test.startTest();
-
-        List<String> topics = new List<String>{ 'duplicate-topic', 'duplicate-topic', 'another One' };
-        builder.setTopics(topics);
-
-        Test.stopTest();
-
-        String expectedTopicsString = 'duplicate-topic,another One';
+        String expectedTopicsString = String.join(topics, '\n');
         System.assertEquals(expectedTopicsString, builder.getLogEntryEvent().Topics__c);
     }
 
