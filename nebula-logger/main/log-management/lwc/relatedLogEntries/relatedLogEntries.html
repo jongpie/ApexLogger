@@ -7,13 +7,7 @@
     <template if:true={showComponent}>
         <lightning-card title={title} icon-name={queryResult.tabIcon} class="log-entry-card">
             <div slot="actions">
-                <lightning-input
-                    name="enter-search"
-                    placeholder="Search"
-                    type="search"
-                    value={search}
-                    onchange={handleSearchChange}
-                ></lightning-input>
+                <lightning-input name="enter-search" placeholder="Search" type="search" value={search} onchange={handleSearchChange}></lightning-input>
             </div>
             <lightning-datatable
                 key-field="id"

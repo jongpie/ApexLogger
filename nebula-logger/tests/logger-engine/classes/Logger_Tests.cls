@@ -231,7 +231,17 @@ private class Logger_Tests {
     @isTest
     static void it_should_return_transaction_id() {
         String transactionId = Logger.getTransactionId();
-        System.assert(!String.isBlank(transactionId));
+        System.assert(String.isNotBlank(transactionId));
+        System.assertEquals(System.Request.getCurrent().getRequestId(), transactionId);
+    }
+
+    @isTest
+    static void it_should_set_transaction_entry_number() {
+        for (Integer i = 0; i < 10; i++) {
+            LogEntryEventBuilder builder = Logger.info('my log entry');
+
+            System.assertEquals(i + 1, builder.getLogEntryEvent().TransactionEntryNumber__c);
+        }
     }
 
     @isTest
@@ -492,7 +502,38 @@ private class Logger_Tests {
     }
 
     @isTest
-    static void it_should_save_via_event_bus() {
+    static void it_should_save_via_event_bus_when_defaulted() {
+        Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
+        System.assertEquals(0, countOfLogEntries);
+
+        setUserLoggingLevel(LoggingLevel.DEBUG);
+
+        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        settings.DefaultSaveMethod__c = 'EVENT_BUS';
+        upsert settings;
+
+        System.assertEquals(Logger.SaveMethod.EVENT_BUS, Logger.transactionSaveMethod);
+
+        Logger.debug('test log entry');
+        Logger.debug('another test log entry');
+
+        System.assertEquals(0, Limits.getPublishImmediateDml());
+
+        Test.startTest();
+
+        Logger.saveLog();
+        System.assertEquals(1, Limits.getPublishImmediateDml());
+        System.assertEquals(0, Limits.getQueueableJobs());
+        System.assertEquals(0, Limits.getCallouts());
+
+        Test.stopTest();
+
+        countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
+        System.assertEquals(2, countOfLogEntries);
+    }
+
+    @isTest
+    static void it_should_save_via_event_bus_when_specified() {
         Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
         System.assertEquals(0, countOfLogEntries);
 
@@ -517,7 +558,38 @@ private class Logger_Tests {
     }
 
     @isTest
-    static void it_should_save_via_queueable() {
+    static void it_should_save_via_queueable_when_defaulted() {
+        Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
+        System.assertEquals(0, countOfLogEntries);
+
+        setUserLoggingLevel(LoggingLevel.DEBUG);
+
+        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        settings.DefaultSaveMethod__c = 'QUEUEABLE';
+        upsert settings;
+
+        System.assertEquals(Logger.SaveMethod.QUEUEABLE, Logger.transactionSaveMethod);
+
+        Logger.debug('test log entry');
+        Logger.debug('another test log entry');
+
+        System.assertEquals(0, Limits.getQueueableJobs());
+
+        Test.startTest();
+
+        Logger.saveLog();
+        System.assertEquals(0, Limits.getPublishImmediateDml());
+        System.assertEquals(1, Limits.getQueueableJobs());
+        System.assertEquals(0, Limits.getCallouts());
+
+        Test.stopTest();
+
+        countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
+        System.assertEquals(2, countOfLogEntries);
+    }
+
+    @isTest
+    static void it_should_save_via_queueable_when_specified() {
         Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
         System.assertEquals(0, countOfLogEntries);
 
@@ -542,7 +614,37 @@ private class Logger_Tests {
     }
 
     @isTest
-    static void it_should_save_via_rest_api() {
+    static void it_should_save_via_rest_api_when_defaulted() {
+        Test.setMock(HttpCalloutMock.class, new SuccessCalloutMock());
+
+        Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];
+        System.assertEquals(0, countOfLogEntries);
+
+        setUserLoggingLevel(LoggingLevel.DEBUG);
+
+        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        settings.DefaultSaveMethod__c = 'REST';
+        upsert settings;
+
+        System.assertEquals(Logger.SaveMethod.REST, Logger.transactionSaveMethod);
+
+        Logger.debug('test log entry');
+        Logger.debug('another test log entry');
+
+        System.assertEquals(0, Limits.getCallouts());
+
+        Test.startTest();
+
+        Logger.saveLog(Logger.SaveMethod.REST);
+        System.assertEquals(0, Limits.getPublishImmediateDml());
+        System.assertEquals(0, Limits.getQueueableJobs());
+        System.assertEquals(1, Limits.getCallouts());
+
+        Test.stopTest();
+    }
+
+    @isTest
+    static void it_should_save_via_rest_api_when_specified() {
         Test.setMock(HttpCalloutMock.class, new SuccessCalloutMock());
 
         Integer countOfLogEntries = [SELECT COUNT() FROM LogEntry__c];

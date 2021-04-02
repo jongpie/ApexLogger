@@ -22,7 +22,6 @@ global with sharing class LogEntryEventBuilder {
     private static final User USER = getUser();
     private static final Map<String, String> SOBJECT_NAME_TO_CLASSIFICATION = new Map<String, String>();
     private static final Map<String, String> SOBJECT_SUFFIX_TO_CLASSIFICATION = getSObjectSuffixToClassification();
-    private static final Boolean USER_CAN_CREATE_LOG_ENTRY_EVENTS = SObjectType.LogEntryEvent__e.isCreateable();
 
     private final LogEntryEvent__e logEntryEvent;
     private final LoggingLevel loggingLevel;
@@ -37,14 +36,13 @@ global with sharing class LogEntryEventBuilder {
      * @return              The new instance of `LogEntryEventBuilder`
      */
     public LogEntryEventBuilder(LoggingLevel loggingLevel, Boolean shouldSave) {
-        this.loggingLevel = loggingLevel;
-
-        // Verify that the user has create access
-        this.shouldSave = USER_CAN_CREATE_LOG_ENTRY_EVENTS && shouldSave;
+        this.shouldSave = shouldSave;
 
         if (this.shouldSave == false) {
             return;
         }
+
+        this.loggingLevel = loggingLevel;
 
         this.logEntryEvent = new LogEntryEvent__e(
             ApiVersion__c = API_VERSION,
@@ -77,6 +75,10 @@ global with sharing class LogEntryEventBuilder {
         DmlException stackTraceException = new DmlException();
         this.parseStackTrace(stackTraceException.getStackTraceString());
         //}
+
+        Database.DmlOptions dmlOptions = new Database.DmlOptions();
+        dmlOptions.allowFieldTruncation = true;
+        this.logEntryEvent.setOptions(dmlOptions);
     }
 
     /**
@@ -102,17 +104,9 @@ global with sharing class LogEntryEventBuilder {
             return this;
         }
 
-        // When running as unmanaged code, auto-call System.debug
-        // System.debug is useless in managed packages, so don't bother when namespaced
-        // TODO add check to see if the class's namespace == the org's namespace
-        // if (!hasNamespacePrefix()) {
         System.debug(this.loggingLevel, message);
-        // }
 
-        String truncatedMessage = truncateFieldValue(Schema.LogEntryEvent__e.Message__c, message);
-
-        this.logEntryEvent.Message__c = truncatedMessage;
-        this.logEntryEvent.MessageTruncated__c = message != truncatedMessage;
+        this.logEntryEvent.Message__c = message;
 
         return this;
     }
@@ -360,12 +354,10 @@ global with sharing class LogEntryEventBuilder {
 
         this.logEntryEvent.RecordCollectionType__c = 'Single';
         this.logEntryEvent.RecordId__c = record.Id;
+        this.logEntryEvent.RecordJson__c = JSON.serializePretty(record);
         this.logEntryEvent.RecordSObjectClassification__c = getSObjectClassification(record.getSObjectType());
         this.logEntryEvent.RecordSObjectType__c = record.getSObjectType().getDescribe().getName();
         this.logEntryEvent.RecordSObjectTypeNamespace__c = getSObjectTypeNamespace(record.getSObjectType());
-
-        String truncatedRecordJson = truncateFieldValue(Schema.LogEntryEvent__e.RecordJson__c, JSON.serializePretty(record));
-        this.logEntryEvent.RecordJson__c = truncatedRecordJson;
 
         return this;
     }
@@ -381,12 +373,10 @@ global with sharing class LogEntryEventBuilder {
         }
 
         this.logEntryEvent.RecordCollectionType__c = 'List';
+        this.logEntryEvent.RecordJson__c = JSON.serializePretty(records);
         this.logEntryEvent.RecordSObjectClassification__c = getSObjectClassification(records.getSObjectType());
         this.logEntryEvent.RecordSObjectType__c = records.getSObjectType().getDescribe().getName();
         this.logEntryEvent.RecordSObjectTypeNamespace__c = getSObjectTypeNamespace(records.getSObjectType());
-
-        String truncatedRecordJson = truncateFieldValue(Schema.LogEntryEvent__e.RecordJson__c, JSON.serializePretty(records));
-        this.logEntryEvent.RecordJson__c = truncatedRecordJson;
 
         return this;
     }
@@ -792,20 +782,9 @@ global with sharing class LogEntryEventBuilder {
         }
 
         // De-duplicate the list of topics
-        topics = new List<String>(new Set<String>(topics));
+        // TODO remove (help reduce CPU usage)
+        // topics = new List<String>(new Set<String>(topics));
 
-        String topicsString = String.escapeSingleQuotes(String.join(topics, '\n'));
-        return truncateFieldValue(Schema.LogEntryEvent__e.Topics__c, topicsString);
-    }
-
-    private static String truncateFieldValue(Schema.SObjectField field, String value) {
-        Integer fieldMaxLength = field.getDescribe().getLength();
-        if (String.isEmpty(value)) {
-            return value;
-        } else if (value.length() <= fieldMaxLength) {
-            return value;
-        }
-
-        return value.left(fieldMaxLength);
+        return String.escapeSingleQuotes(String.join(topics, '\n'));
     }
 }

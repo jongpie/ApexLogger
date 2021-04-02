@@ -405,6 +405,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>LogEntry__c.TransactionEntryNumber__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>LogEntry__c.TriggerIsExecuting__c</field>
         <readable>true</readable>
     </fieldPermissions>

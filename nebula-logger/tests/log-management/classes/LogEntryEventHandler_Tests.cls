@@ -117,6 +117,7 @@ private class LogEntryEventHandler_Tests {
                         RecordSObjectTypeNamespace__c,
                         StackTrace__c,
                         Timestamp__c,
+                        TransactionEntryNumber__c,
                         TriggerIsExecuting__c,
                         TriggerOperationType__c,
                         TriggerSObjectType__c
@@ -252,6 +253,7 @@ private class LogEntryEventHandler_Tests {
         System.assertEquals(logEntryEvent.RecordSObjectTypeNamespace__c, logEntry.RecordSObjectTypeNamespace__c);
         System.assertEquals(logEntryEvent.StackTrace__c, logEntry.StackTrace__c);
         System.assertEquals(logEntryEvent.Timestamp__c, logEntry.Timestamp__c);
+        System.assertEquals(logEntryEvent.TransactionEntryNumber__c, logEntry.TransactionEntryNumber__c);
         System.assertEquals(logEntryEvent.TriggerIsExecuting__c, logEntry.TriggerIsExecuting__c);
         System.assertEquals(logEntryEvent.TriggerOperationType__c, logEntry.TriggerOperationType__c);
         System.assertEquals(logEntryEvent.TriggerSObjectType__c, logEntry.TriggerSObjectType__c);
@@ -261,7 +263,12 @@ private class LogEntryEventHandler_Tests {
     static void it_should_normalize_simple_event_data_into_log_and_log_entry() {
         String transactionId = '123-456-789-0';
 
-        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(Message__c = 'my message', Timestamp__c = System.now(), TransactionId__c = transactionId);
+        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            Message__c = 'my message',
+            Timestamp__c = System.now(),
+            TransactionEntryNumber__c = 1,
+            TransactionId__c = transactionId
+        );
 
         Test.startTest();
         Database.SaveResult saveResult = EventBus.publish(logEntryEvent);
@@ -345,6 +352,7 @@ private class LogEntryEventHandler_Tests {
             Timestamp__c = System.now(),
             TimeZoneId__c = 'fake-id',
             TimeZoneName__c = 'My time zone name',
+            TransactionEntryNumber__c = 1,
             TransactionId__c = transactionId,
             TriggerIsExecuting__c = false,
             TriggerOperationType__c = 'SomeOperation',
@@ -379,6 +387,7 @@ private class LogEntryEventHandler_Tests {
             LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
                 Message__c = 'my message',
                 Timestamp__c = System.now(),
+                TransactionEntryNumber__c = i,
                 TransactionId__c = transactionIds.get(i)
             );
 
@@ -417,6 +426,7 @@ private class LogEntryEventHandler_Tests {
             Message__c = 'my message',
             Timestamp__c = System.now(),
             Topics__c = String.join(topics, ','),
+            TransactionEntryNumber__c = 1,
             TransactionId__c = transactionId
         );
 
@@ -451,7 +461,12 @@ private class LogEntryEventHandler_Tests {
         upsert orgDefaults;
 
         String transactionId = '123-456-789-0';
-        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(Message__c = 'my message', Timestamp__c = System.now(), TransactionId__c = transactionId);
+        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            Message__c = 'my message',
+            Timestamp__c = System.now(),
+            TransactionEntryNumber__c = 1,
+            TransactionId__c = transactionId
+        );
 
         Database.SaveResult saveResult;
 
@@ -471,7 +486,6 @@ private class LogEntryEventHandler_Tests {
         System.assertEquals(1, log.LogEntries__r.size());
         LogEntry__c logEntry = log.LogEntries__r.get(0);
 
-        System.assertEquals(logEntryEvent.TransactionId__c, log.TransactionId__c);
         System.assertEquals(MOCK_RELEASE_NUMBER, log.ApiReleaseNumber__c);
         System.assertEquals(MOCK_RELEASE_VERSION, log.ApiReleaseVersion__c);
         validateLogFields(logEntryEvent, log);
@@ -488,7 +502,12 @@ private class LogEntryEventHandler_Tests {
         upsert orgDefaults;
 
         String transactionId = '123-456-789-0';
-        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(Message__c = 'my message', Timestamp__c = System.now(), TransactionId__c = transactionId);
+        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            Message__c = 'my message',
+            Timestamp__c = System.now(),
+            TransactionEntryNumber__c = 1,
+            TransactionId__c = transactionId
+        );
 
         Database.SaveResult saveResult;
 
@@ -527,7 +546,12 @@ private class LogEntryEventHandler_Tests {
         upsert orgDefaults;
 
         String transactionId = '123-456-789-0';
-        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(Message__c = 'my message', Timestamp__c = System.now(), TransactionId__c = transactionId);
+        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            Message__c = 'my message',
+            Timestamp__c = System.now(),
+            TransactionEntryNumber__c = 1,
+            TransactionId__c = transactionId
+        );
 
         Database.SaveResult saveResult;
         try {

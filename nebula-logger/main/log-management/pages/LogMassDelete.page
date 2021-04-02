@@ -45,7 +45,7 @@
                                     <td><a href="{! '/' + deletableLog.Id}">{!deletableLog.Name}</a></td>
                                     <td><a href="{! '/' + deletableLog.LoggedBy__c}">{!deletableLog.LoggedBy__r.Name}</a></td>
                                     <td><apex:outputField value="{!deletableLog.StartTime__c}"/></td>
-                                    <td>{!deletableLog.TotalLogEntries__c}</td>
+                                    <td class="slds-text-align_right">{!deletableLog.TotalLogEntries__c}</td>
                                 </tr>
                             </apex:repeat>
                         </tbody>

@@ -1,5 +1,5 @@
 # Unique name for this workflow
-name: Logger Deployment
+name: Deployment
 
 on:
   push:

@@ -4,7 +4,7 @@
     <defaultValue>false</defaultValue>
     <externalId>false</externalId>
     <inlineHelpText>Indicates if the message was truncated due to being too long to fit into the Message field</inlineHelpText>
-    <label>Message Truncated</label>
+    <label>DEPRECATED: Message Truncated</label>
     <trackFeedHistory>true</trackFeedHistory>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

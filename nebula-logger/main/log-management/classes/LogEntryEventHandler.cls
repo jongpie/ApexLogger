@@ -183,6 +183,7 @@ public without sharing class LogEntryEventHandler {
                 RecordSObjectTypeNamespace__c = logEntryEvent.RecordSObjectTypeNamespace__c,
                 StackTrace__c = logEntryEvent.StackTrace__c,
                 Timestamp__c = timestamp,
+                TransactionEntryNumber__c = logEntryEvent.TransactionEntryNumber__c,
                 TriggerIsExecuting__c = logEntryEvent.TriggerIsExecuting__c,
                 TriggerOperationType__c = logEntryEvent.TriggerOperationType__c,
                 TriggerSObjectType__c = logEntryEvent.TriggerSObjectType__c

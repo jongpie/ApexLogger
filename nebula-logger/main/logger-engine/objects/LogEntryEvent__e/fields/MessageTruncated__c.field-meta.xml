@@ -6,6 +6,6 @@
     <isFilteringDisabled>false</isFilteringDisabled>
     <isNameField>false</isNameField>
     <isSortingDisabled>false</isSortingDisabled>
-    <label>Message Truncated</label>
+    <label>DEPRECATED: Message Truncated</label>
     <type>Checkbox</type>
 </CustomField>

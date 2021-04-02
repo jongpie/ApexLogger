@@ -3,5 +3,5 @@
     <apiVersion>51.0</apiVersion>
     <availableInTouch>false</availableInTouch>
     <confirmationTokenRequired>false</confirmationTokenRequired>
-    <label>LogMassDelete</label>
+    <label>Log Mass Delete</label>
 </ApexPage>

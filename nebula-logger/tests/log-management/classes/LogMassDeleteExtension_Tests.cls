@@ -5,7 +5,6 @@
 
 @isTest
 private class LogMassDeleteExtension_Tests {
-
     @TestSetup
     static void setupData() {
         List<Log__c> logs = new List<Log__c>();
@@ -26,7 +25,11 @@ private class LogMassDeleteExtension_Tests {
         }
 
         List<Log__c> expectedDeletableLogs = new List<Log__c>();
-        for (UserRecordAccess recordAccess : [SELECT RecordId FROM UserRecordAccess WHERE UserId = :UserInfo.getUserId() AND RecordId IN :logIds AND HasDeleteAccess = true]) {
+        for (UserRecordAccess recordAccess : [
+            SELECT RecordId
+            FROM UserRecordAccess
+            WHERE UserId = :UserInfo.getUserId() AND RecordId IN :logIds AND HasDeleteAccess = TRUE
+        ]) {
             expectedDeletableLogs.add(new Log__c(Id = recordAccess.RecordId));
         }
 

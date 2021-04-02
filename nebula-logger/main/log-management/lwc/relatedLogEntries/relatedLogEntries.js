@@ -76,7 +76,6 @@ export default class RelatedLogEntries extends LightningElement {
                     minute: '2-digit',
                     second: '2-digit'
                 };
-
             } else if (field.type == 'reference') {
                 let displayFieldName = field.lookupDisplayFieldName.replace('.', '') + 'Display';
                 let looupFieldName = field.fieldName;

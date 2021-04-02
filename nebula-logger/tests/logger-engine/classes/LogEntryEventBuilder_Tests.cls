@@ -79,7 +79,6 @@ private class LogEntryEventBuilder_Tests {
     static void it_should_set_message_fields_for_logMessage() {
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
         System.assertEquals(null, builder.getLogEntryEvent().Message__c);
-        System.assertEquals(false, builder.getLogEntryEvent().MessageTruncated__c);
 
         Test.startTest();
 
@@ -89,14 +88,12 @@ private class LogEntryEventBuilder_Tests {
         Test.stopTest();
 
         System.assertEquals(logMessage.getMessage(), builder.getLogEntryEvent().Message__c);
-        System.assertEquals(false, builder.getLogEntryEvent().MessageTruncated__c);
     }
 
     @isTest
     static void it_should_set_message_fields_for_string() {
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
         System.assertEquals(null, builder.getLogEntryEvent().Message__c);
-        System.assertEquals(false, builder.getLogEntryEvent().MessageTruncated__c);
 
         Test.startTest();
 
@@ -106,33 +103,6 @@ private class LogEntryEventBuilder_Tests {
         Test.stopTest();
 
         System.assertEquals(message, builder.getLogEntryEvent().Message__c);
-        System.assertEquals(false, builder.getLogEntryEvent().MessageTruncated__c);
-    }
-
-    @isTest
-    static void it_should_truncate_a_long_message() {
-        LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
-        System.assertEquals(null, builder.getLogEntryEvent().Message__c);
-        System.assertEquals(false, builder.getLogEntryEvent().MessageTruncated__c);
-
-        Integer messageFieldMaxLength = Schema.LogEntryEvent__e.Message__c.getDescribe().getLength();
-
-        String randomMessage = 'The time is ' + String.valueOf(System.now());
-        String longMessage = '';
-        while (longMessage.length() <= messageFieldMaxLength) {
-            longMessage += randomMessage;
-        }
-        System.assert(longMessage.length() > messageFieldMaxLength);
-
-        Test.startTest();
-
-        builder.setMessage(longMessage);
-
-        Test.stopTest();
-
-        String expectedTruncatedMessage = longMessage.left(messageFieldMaxLength);
-        System.assertEquals(expectedTruncatedMessage, builder.getLogEntryEvent().Message__c);
-        System.assertEquals(true, builder.getLogEntryEvent().MessageTruncated__c);
     }
 
     @isTest

@@ -56,9 +56,7 @@ private class LogHandler_Tests {
             expectedReleaseCycle = 'Unknown';
         }
 
-        Log__c log = new Log__c(
-            TransactionId__c = '1234'
-        );
+        Log__c log = new Log__c(TransactionId__c = '1234');
 
         Test.startTest();
         insert log;
