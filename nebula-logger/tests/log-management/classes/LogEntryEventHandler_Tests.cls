@@ -452,6 +452,42 @@ private class LogEntryEventHandler_Tests {
     }
 
     @isTest
+    static void it_should_create_topic_and_topicAssignment_records_when_cmdt_rules_are_configured() {
+        System.assert(false, 'TODO finish testing CMDT');
+
+        String transactionId = '123-456-789-0';
+
+        List<String> topics = new List<String>{ 'test-topic-1', 'test-topic-2' };
+        LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            Message__c = 'my message',
+            Timestamp__c = System.now(),
+            Topics__c = String.join(topics, ','),
+            TransactionEntryNumber__c = 1,
+            TransactionId__c = transactionId
+        );
+
+        Test.startTest();
+        Database.SaveResult saveResult = EventBus.publish(logEntryEvent);
+        Test.stopTest();
+
+        System.assertEquals(true, saveResult.isSuccess(), saveResult.getErrors());
+
+        Log__c log = getLog();
+        System.assertEquals(1, log.LogEntries__r.size());
+        LogEntry__c logEntry = log.LogEntries__r.get(0);
+
+        System.assertEquals(logEntryEvent.TransactionId__c, log.TransactionId__c);
+        validateLogFields(logEntryEvent, log);
+        validateLogEntryFields(logEntryEvent, logEntry);
+
+        Set<String> topicsSet = new Set<String>(topics);
+        List<TopicAssignment> topicAssignments = [SELECT Id, EntityId, TopicId, Topic.Name FROM TopicAssignment WHERE EntityId = :logEntry.Id];
+        for (TopicAssignment topicAssignment : topicAssignments) {
+            System.assert(topicsSet.contains(topicAssignment.Topic.Name));
+        }
+    }
+
+    @isTest
     static void it_should_set_api_release_number_and_api_release_version_from_callout_when_enabled() {
         Test.setMock(HttpCalloutMock.class, new SuccessCalloutMock());
         LogEntryEventHandler.shouldCallStatusApi = true;
