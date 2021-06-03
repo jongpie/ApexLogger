@@ -69,6 +69,7 @@ private class LogEntryEventHandler_Tests {
                 UserType__c,
                 (
                     SELECT
+                        EpochTimestamp__c,
                         ExceptionStackTrace__c,
                         ExceptionType__c,
                         LimitsAggregateQueriesMax__c,
@@ -207,6 +208,7 @@ private class LogEntryEventHandler_Tests {
     }
 
     static void validateLogEntryFields(LogEntryEvent__e logEntryEvent, LogEntry__c logEntry) {
+        System.assertEquals(logEntryEvent.EpochTimestamp__c, logEntry.EpochTimestamp__c);
         System.assertEquals(logEntryEvent.ExceptionStackTrace__c, logEntry.ExceptionStackTrace__c);
         System.assertEquals(logEntryEvent.ExceptionType__c, logEntry.ExceptionType__c);
         System.assertEquals(logEntryEvent.LimitsAggregateQueriesMax__c, logEntry.LimitsAggregateQueriesMax__c);
@@ -264,6 +266,7 @@ private class LogEntryEventHandler_Tests {
         String transactionId = '123-456-789-0';
 
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            EpochTimestamp__c = System.now().getTime(),
             Message__c = 'my message',
             Timestamp__c = System.now(),
             TransactionEntryNumber__c = 1,
@@ -293,6 +296,7 @@ private class LogEntryEventHandler_Tests {
 
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
             ApiVersion__c = '99.0',
+            EpochTimestamp__c = System.now().getTime(),
             ExceptionStackTrace__c = dmlException.getStackTraceString(),
             ExceptionType__c = dmlException.getTypeName(),
             LimitsAggregateQueriesMax__c = 987,
@@ -385,6 +389,7 @@ private class LogEntryEventHandler_Tests {
         List<LogEntryEvent__e> logEntryEvents = new List<LogEntryEvent__e>();
         for (Integer i = 0; i < transactionIds.size(); i++) {
             LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+                EpochTimestamp__c = System.now().getTime(),
                 Message__c = 'my message',
                 Timestamp__c = System.now(),
                 TransactionEntryNumber__c = i,
@@ -423,6 +428,7 @@ private class LogEntryEventHandler_Tests {
 
         List<String> topics = new List<String>{ 'test-topic-1', 'test-topic-2' };
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            EpochTimestamp__c = System.now().getTime(),
             Message__c = 'my message',
             Timestamp__c = System.now(),
             Topics__c = String.join(topics, ','),
@@ -498,6 +504,7 @@ private class LogEntryEventHandler_Tests {
 
         String transactionId = '123-456-789-0';
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            EpochTimestamp__c = System.now().getTime(),
             Message__c = 'my message',
             Timestamp__c = System.now(),
             TransactionEntryNumber__c = 1,
@@ -539,24 +546,15 @@ private class LogEntryEventHandler_Tests {
 
         String transactionId = '123-456-789-0';
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
+            EpochTimestamp__c = System.now().getTime(),
             Message__c = 'my message',
             Timestamp__c = System.now(),
             TransactionEntryNumber__c = 1,
             TransactionId__c = transactionId
         );
 
-        Database.SaveResult saveResult;
-
         Test.startTest();
-
-        saveResult = EventBus.publish(logEntryEvent);
-        // Normally, you don't have to call Test.getEventBus().deliver() if you're also using Test.stopTest()
-        // But, in this case, there are 3 transactions happening (original test, async platform event, and async future method)
-        // So, call Test.getEventBus().deliver() and Test.stopTest() to make sure all transactions are completed before running asserts
-        Test.getEventBus().deliver();
-
-        System.assertEquals(0, Limits.getCallouts());
-
+        Database.SaveResult saveResult = EventBus.publish(logEntryEvent);
         Test.stopTest();
 
         System.assertEquals(true, saveResult.isSuccess(), saveResult.getErrors());

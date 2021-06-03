@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Batch class used to delete old logs, based on `Log__c.LogRetentionDate__c <= :System.today()`
  * @see LogBatchPurgeScheduler
  */
@@ -24,7 +24,7 @@ global with sharing class LogBatchPurger implements Database.Batchable<SObject>,
         // ...so store the first transaction ID to later relate the other transactions
         this.originalTransactionId = Logger.getTransactionId();
 
-        if (LoggerSettings__c.getInstance().EnableSystemMessages__c) {
+        if (Logger.getUserSettings().EnableSystemMessages__c == true) {
             Logger.info('Starting LogBatchPurger job');
             Logger.saveLog();
         }
@@ -34,40 +34,38 @@ global with sharing class LogBatchPurger implements Database.Batchable<SObject>,
         );
     }
 
-    global void execute(Database.BatchableContext batchableContext, List<Log__c> scope) {
+    global void execute(Database.BatchableContext batchableContext, List<Log__c> logsToDelete) {
         if (!Schema.Log__c.SObjectType.getDescribe().isDeletable()) {
             throw new LogBatchPurgerException('User does not have access to delete logs');
         }
 
-        this.totalProcessedRecords += scope.size();
+        this.totalProcessedRecords += logsToDelete.size();
 
         try {
-            if (LoggerSettings__c.getInstance().EnableSystemMessages__c) {
+            if (Logger.getUserSettings().EnableSystemMessages__c == true) {
                 Logger.setParentLogTransactionId(this.originalTransactionId);
-                Logger.info(new LogMessage('Starting deletion of {0} records', scope.size()));
+                Logger.info(new LogMessage('Starting deletion of {0} records', logsToDelete.size()));
             }
 
-            List<SObject> recordsToDelete = new List<SObject>();
-            for (Log__c log : scope) {
-                recordsToDelete.addAll(log.LogEntries__r);
-                recordsToDelete.add(log);
-            }
+            // Delete the child log entries first
+            List<LogEntry__c> logEntriesToDelete = [SELECT Id FROM LogEntry__c WHERE Log__c IN :logsToDelete];
+            delete logEntriesToDelete;
+            Database.emptyRecycleBin(logEntriesToDelete);
 
-            delete recordsToDelete;
-            Database.emptyRecycleBin(recordsToDelete);
+            // Now delete the parent logs
+            delete logsToDelete;
+            Database.emptyRecycleBin(logsToDelete);
         } catch (Exception apexException) {
-            if (LoggerSettings__c.getInstance().EnableSystemMessages__c) {
+            if (Logger.getUserSettings().EnableSystemMessages__c == true) {
                 Logger.error('Error deleting logs', apexException);
             }
         } finally {
-            if (LoggerSettings__c.getInstance().EnableSystemMessages__c) {
-                Logger.saveLog();
-            }
+            Logger.saveLog();
         }
     }
 
     global void finish(Database.BatchableContext batchableContext) {
-        if (LoggerSettings__c.getInstance().EnableSystemMessages__c) {
+        if (Logger.getUserSettings().EnableSystemMessages__c == true) {
             Logger.setParentLogTransactionId(this.originalTransactionId);
             Logger.info(new LogMessage('Finished LogBatchPurger job, {0} total log records processed', this.totalProcessedRecords));
             Logger.saveLog();

@@ -8,7 +8,7 @@ private class LogBatchPurger_Tests {
 
     @testSetup
     static void setupData() {
-        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        LoggerSettings__c settings = Logger.getUserSettings();
         settings.IsEnabled__c = false;
         settings.EnableSystemMessages__c = false;
         settings.LoggingLevel__c = LoggingLevel.FINEST.name();
@@ -30,15 +30,15 @@ private class LogBatchPurger_Tests {
 
     @isTest
     static void it_should_delete_a_log_after_scheduled_deletion_date_when_system_messages_enabled() {
-        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        LoggerSettings__c settings = Logger.getUserSettings();
         settings.IsEnabled__c = true;
         settings.EnableSystemMessages__c = true;
         settings.LoggingLevel__c = LoggingLevel.FINEST.name();
         upsert settings;
 
-        System.assertEquals(true, LoggerSettings__c.getInstance().IsEnabled__c);
-        System.assertEquals(true, LoggerSettings__c.getInstance().EnableSystemMessages__c);
-        System.assertEquals(LoggingLevel.FINEST.name(), LoggerSettings__c.getInstance().LoggingLevel__c);
+        System.assertEquals(true, Logger.getUserSettings().IsEnabled__c);
+        System.assertEquals(true, Logger.getUserSettings().EnableSystemMessages__c);
+        System.assertEquals(LoggingLevel.FINEST.name(), Logger.getUserSettings().LoggingLevel__c);
 
         List<Log__c> logs = [SELECT Id, LogRetentionDate__c FROM Log__c];
         List<LogEntry__c> logEntries = [SELECT Id FROM LogEntry__c];
@@ -63,13 +63,13 @@ private class LogBatchPurger_Tests {
 
     @isTest
     static void it_should_delete_a_log_after_scheduled_deletion_date_when_system_messages_disabled() {
-        LoggerSettings__c settings = LoggerSettings__c.getInstance();
+        LoggerSettings__c settings = Logger.getUserSettings();
         settings.IsEnabled__c = true;
         upsert settings;
 
-        System.assertEquals(true, LoggerSettings__c.getInstance().IsEnabled__c);
-        System.assertEquals(false, LoggerSettings__c.getInstance().EnableSystemMessages__c);
-        System.assertEquals(LoggingLevel.FINEST.name(), LoggerSettings__c.getInstance().LoggingLevel__c);
+        System.assertEquals(true, Logger.getUserSettings().IsEnabled__c);
+        System.assertEquals(false, Logger.getUserSettings().EnableSystemMessages__c);
+        System.assertEquals(LoggingLevel.FINEST.name(), Logger.getUserSettings().LoggingLevel__c);
 
         List<Log__c> logs = [SELECT Id, LogRetentionDate__c FROM Log__c];
         List<LogEntry__c> logEntries = [SELECT Id FROM LogEntry__c];
@@ -104,7 +104,7 @@ private class LogBatchPurger_Tests {
         Log__c log = logs.get(0);
         log.LogRetentionDate__c = System.today().addDays(7);
         update log;
-        log = [SELECT Id, LogRetentionDate__c FROM Log__c WHERE Id = :log.Id];
+        log = [SELECT Id, LogRetentionDate__c FROM Log__c];
         System.assert(log.LogRetentionDate__c > System.today());
 
         Test.startTest();
@@ -129,7 +129,7 @@ private class LogBatchPurger_Tests {
         Log__c log = logs.get(0);
         log.LogRetentionDate__c = null;
         update log;
-        log = [SELECT Id, LogRetentionDate__c FROM Log__c WHERE Id = :log.Id];
+        log = [SELECT Id, LogRetentionDate__c FROM Log__c];
         System.assertEquals(null, log.LogRetentionDate__c);
 
         Test.startTest();

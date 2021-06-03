@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <RemoteSiteSetting xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Used to retrieve additional details about the current org</description>
     <disableProtocolSecurity>false</disableProtocolSecurity>

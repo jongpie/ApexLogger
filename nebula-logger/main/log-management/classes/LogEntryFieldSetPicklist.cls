@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Dynamically returns `LogEntry__c` field sets in App Builder when configuring the component RelatedLogEntries
  */
 public without sharing class LogEntryFieldSetPicklist extends VisualEditor.DynamicPickList {

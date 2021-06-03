@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>EnableStatusApiCallout__c</fullName>
     <defaultValue>true</defaultValue>
-    <description>When enabled, an async callout is made to https://api.status.salesforce.com to get additional details about the current org, including the org&apos;s release version and release number. This information is then stored on the Log__c record.</description>
+    <description
+    >When enabled, an async callout is made to https://api.status.salesforce.com to get additional details about the current org, including the org&apos;s release version and release number. This information is then stored on the Log__c record.</description>
     <externalId>false</externalId>
-    <inlineHelpText>When enabled, an async callout is made to https://api.status.salesforce.com to get additional details about the current org, including the org&apos;s release version and release number. This information is then stored on the Log__c record.</inlineHelpText>
+    <inlineHelpText
+    >When enabled, an async callout is made to https://api.status.salesforce.com to get additional details about the current org, including the org&apos;s release version and release number. This information is then stored on the Log__c record.</inlineHelpText>
     <label>Enable Status API Callout</label>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>

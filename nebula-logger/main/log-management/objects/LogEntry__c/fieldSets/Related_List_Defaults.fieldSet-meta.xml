@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <FieldSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Related_List_Defaults</fullName>
     <description>Used by the &apos;Related Log Entries&apos; component as the default fields displayed</description>

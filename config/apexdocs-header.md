@@ -1,1 +1,1 @@
-# Nebula Logger: Documentation
+# Documentation

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Manages mass deleting `Log__c` records that have been selected by a user on a `Log__c` list view
  */
 public with sharing class LogMassDeleteExtension {
@@ -26,7 +26,7 @@ public with sharing class LogMassDeleteExtension {
 
     /**
      * @description Filters the list of selected `Log__c` records to only include records that the current user can delete (based on object-level access)
-     * @return   return The matching `Log__c` records that the current user has access to delete
+     * @return      The matching `Log__c` records that the current user has access to delete
      */
     public List<Log__c> getDeletableLogs() {
         // The UserRecordAccess object is weird - RecordId is not an actual ID field, so you can't filter using `List<SObject>` or `List<Id>`, you have to use strings
@@ -50,6 +50,10 @@ public with sharing class LogMassDeleteExtension {
         return [SELECT Id, Name, LoggedBy__c, LoggedBy__r.Name, StartTime__c, TotalLogEntries__c FROM Log__c WHERE Id IN :deletableLogIds];
     }
 
+    /**
+     * @description Deletes the list of selected `Log__c` records (if the current user has delete access for the `Log__c` object)
+     * @return      The PageReference of the previous page (based on `controller.cancel()`)
+     */
     public PageReference deleteSelectedLogs() {
         try {
             delete getDeletableLogs();

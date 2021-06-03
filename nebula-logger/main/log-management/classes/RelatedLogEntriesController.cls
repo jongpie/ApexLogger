@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Controller class for the component RelatedLogEntries
  */
 public with sharing class RelatedLogEntriesController {

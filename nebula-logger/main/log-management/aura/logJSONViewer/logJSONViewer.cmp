@@ -8,26 +8,14 @@
 
     <!-- Fix some formatting issues that happen when displaying the lwc inside of aura inside of quick action modal -->
     <aura:html tag="style">
-        .cuf-content {
-            padding: 0 0rem !important;
-        }
-        .slds-p-around--medium {
-            padding: 0rem !important;
-        }
-        .slds-modal__content{
-            overflow-y:hidden !important;
-            height:unset !important;
-            max-height:unset !important;
-        }
+        .cuf-content { padding: 0 0rem !important; } .slds-p-around--medium { padding: 0rem !important; } .slds-modal__content{ overflow-y:hidden !important;
+        height:unset !important; max-height:unset !important; }
     </aura:html>
 
     <!-- Make the quick action modal wider for desktop -->
     <aura:if isTrue="{!$Browser.formFactor == 'DESKTOP'}">
         <aura:html tag="style">
-            .slds-modal__container {
-                max-width : 85rem !important;
-                width     : 85% !important;
-            }
+            .slds-modal__container { max-width : 85rem !important; width : 85% !important; }
         </aura:html>
     </aura:if>
 </aura:component>

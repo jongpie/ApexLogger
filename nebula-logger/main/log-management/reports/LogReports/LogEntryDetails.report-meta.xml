@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Report xmlns="http://soap.sforce.com/2006/04/metadata">
     <chart>
         <backgroundColor1>#FFFFFF</backgroundColor1>
@@ -32,6 +32,10 @@
     </columns>
     <columns>
         <field>LogEntry__c.Timestamp__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>LogEntry__c.EpochTimestamp__c</field>
     </columns>
     <columns>
         <field>LogEntry__c.LoggingLevelWithImage__c</field>

@@ -1,10 +1,12 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ParentLog__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <description>The log from the original transaction that initiated a child log - for example, batch jobs have start, execute and finish methods. All 3 are considered separate transactions. By using the parent log, logs from all 3 transactions can be linked together.</description>
+    <description
+    >The log from the original transaction that initiated a child log - for example, batch jobs have start, execute and finish methods. All 3 are considered separate transactions. By using the parent log, logs from all 3 transactions can be linked together.</description>
     <externalId>false</externalId>
-    <inlineHelpText>The log from the original transaction that initiated a child log - for example, batch jobs have start, execute and finish methods. All 3 are considered separate transactions. By using the parent log, logs from all 3 transactions can be linked together.</inlineHelpText>
+    <inlineHelpText
+    >The log from the original transaction that initiated a child log - for example, batch jobs have start, execute and finish methods. All 3 are considered separate transactions. By using the parent log, logs from all 3 transactions can be linked together.</inlineHelpText>
     <label>Parent Log</label>
     <referenceTo>Log__c</referenceTo>
     <relationshipLabel>Related Logs</relationshipLabel>

@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group logger-engine
+ * @group Logger Engine
  * @description Builder class that generates each `LogEntryEvent__e` record
  * @see Logger
  */
@@ -24,7 +24,7 @@ global with sharing class LogEntryEventBuilder {
     private static final Map<String, String> SOBJECT_SUFFIX_TO_CLASSIFICATION = getSObjectSuffixToClassification();
 
     private final LogEntryEvent__e logEntryEvent;
-    private final LoggingLevel loggingLevel;
+    private final LoggingLevel entryLoggingLevel;
 
     private Boolean detailsAreSet = false;
     private Boolean shouldSave;
@@ -32,18 +32,17 @@ global with sharing class LogEntryEventBuilder {
 
     /**
      * @description Used by `Logger` to instantiate a new instance of `LogEntryEventBuilder`
-     * @param  loggingLevel The `LoggingLevel` enum to use for the builder's instance of `LogEntryEvent__e`
-     * @param  shouldSave   Determines if the builder's instance of `LogEntryEvent__e` should be saved
-     * @return              The new instance of `LogEntryEventBuilder`
+     * @param  entryLoggingLevel The `LoggingLevel` enum to use for the builder's instance of `LogEntryEvent__e`
+     * @param  shouldSave        Determines if the builder's instance of `LogEntryEvent__e` should be saved
+     * @return                   The new instance of `LogEntryEventBuilder`
      */
-    public LogEntryEventBuilder(LoggingLevel loggingLevel, Boolean shouldSave) {
+    public LogEntryEventBuilder(LoggingLevel entryLoggingLevel, Boolean shouldSave) {
+        this.entryLoggingLevel = entryLoggingLevel;
         this.shouldSave = shouldSave;
 
         if (this.shouldSave == false) {
             return;
         }
-
-        this.loggingLevel = loggingLevel;
 
         this.logEntryEvent = new LogEntryEvent__e(
             ApiVersion__c = API_VERSION,
@@ -62,10 +61,11 @@ global with sharing class LogEntryEventBuilder {
             LimitsSoqlQueryLocatorRowsUsed__c = Limits.getQueryLocatorRows(),
             LimitsSoqlQueryRowsUsed__c = Limits.getQueryRows(),
             LimitsSoslSearchesUsed__c = Limits.getSoslQueries(),
-            LoggingLevel__c = loggingLevel.NAME(),
-            LoggingLevelOrdinal__c = loggingLevel.ORDINAL(),
+            LoggingLevel__c = entryLoggingLevel.NAME(),
+            LoggingLevelOrdinal__c = entryLoggingLevel.ORDINAL(),
             OriginType__c = ORIGIN_TYPE_APEX,
             Timestamp__c = System.now(),
+            EpochTimestamp__c = System.now().getTime(),
             TriggerIsExecuting__c = Trigger.isExecuting,
             TriggerOperationType__c = Trigger.operationType == null ? null : Trigger.operationType.name(),
             TriggerSObjectType__c = Trigger.new == null ? null : String.valueOf(Trigger.new.getSObjectType())
@@ -101,11 +101,14 @@ global with sharing class LogEntryEventBuilder {
      * @return         The same instance of `LogEntryEventBuilder`, useful for chaining methods
      */
     global LogEntryEventBuilder setMessage(String message) {
+        // Always run System.debug statement, even if Logger is disabled
+        // This way, if Salesforce's debug logs have been configured in Dev Console...
+        // ... the debug statements will always be generated (in Dev Console, unit test logs, and so on)
+        System.debug(this.entryLoggingLevel, message);
+
         if (this.shouldSave == false) {
             return this;
         }
-
-        System.debug(this.loggingLevel, message);
 
         this.logEntryEvent.Message__c = message;
 
@@ -495,7 +498,7 @@ global with sharing class LogEntryEventBuilder {
         // Set the string value of timestamp to a second field as a workaround
         // See https://developer.salesforce.com/docs/atlas.en-us.platform_events.meta/platform_events/platform_events_api_considerations.htm
         if (this.logEntryEvent.Timestamp__c != null) {
-            this.logEntryEvent.TimestampString__c = String.valueOf(this.logEntryEvent.Timestamp__c);
+            this.logEntryEvent.TimestampString__c = String.valueOf(this.logEntryEvent.Timestamp__c.getTime());
         }
 
         return this.logEntryEvent;
@@ -575,10 +578,6 @@ global with sharing class LogEntryEventBuilder {
     }
 
     private String getSObjectTypeNamespace(Schema.SObjectType sobjectType) {
-        if (sobjectType == null) {
-            return null;
-        }
-
         String sobjectFullName = sobjectType.getDescribe().getName();
         String sobjectLocalName = sobjectType.getDescribe().getLocalName();
 
@@ -591,7 +590,7 @@ global with sharing class LogEntryEventBuilder {
     }
 
     private void setUserSessionDetails() {
-        LoggingLevel userLoggingLevel = Logger.getLoggingLevel(LoggerSettings__c.getInstance().LoggingLevel__c);
+        LoggingLevel userLoggingLevel = Logger.getUserLoggingLevel();
 
         this.logEntryEvent.LimitsAggregateQueriesMax__c = Limits.getLimitAggregateQueries();
         this.logEntryEvent.LimitsAsyncCallsMax__c = Limits.getLimitAsyncCalls();
@@ -722,8 +721,11 @@ global with sharing class LogEntryEventBuilder {
     }
 
     private static SObject getNetwork() {
+        Id networkId;
         if (Network.getNetworkId() == null) {
             return null;
+        } else {
+            networkId = Network.getNetworkId();
         }
 
         String networkApiName = 'Network';
@@ -734,7 +736,7 @@ global with sharing class LogEntryEventBuilder {
             return null;
         }
 
-        String queryString = 'SELECT Id, Name, UrlPathPrefix FROM Network WHERE Id = :Network.getNetworkId()';
+        String queryString = 'SELECT Id, Name, UrlPathPrefix FROM Network WHERE Id = :networkId';
 
         return Database.query(queryString);
     }
@@ -766,7 +768,7 @@ global with sharing class LogEntryEventBuilder {
         if (stackTraceString == '()') {
             return false;
         }
-        if (stackTraceString == '(' + getNamespacePrefix() + ')') {
+        if (stackTraceString == '(' + NAMESPACE_PREFIX + ')') {
             return false;
         }
 

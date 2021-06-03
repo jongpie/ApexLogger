@@ -11,25 +11,30 @@
         function showSuccessMessage() {
             setTimeout(
                 sforce.one.showToast({
-                    type : 'Success',
-                    title : 'Logs Successfully Deleted',
-                    message : '{!deletableLogs.size} record(s) were deleted'
+                    type: 'Success',
+                    title: 'Logs Successfully Deleted',
+                    message: '{!deletableLogs.size} record(s) were deleted'
                 }),
                 2000
             );
         }
     </script>
 
-    <div class="wrapper" style="height:100%">
-        <section role="alertdialog" tabindex="0" aria-labelledby="prompt-heading-id" aria-describedby="prompt-message-wrapper" class="slds-modal slds-fade-in-open slds-modal_prompt" aria-modal="true">
+    <div class="wrapper" style="height: 100%">
+        <section
+            role="alertdialog"
+            tabindex="0"
+            aria-labelledby="prompt-heading-id"
+            aria-describedby="prompt-message-wrapper"
+            class="slds-modal slds-fade-in-open slds-modal_prompt"
+            aria-modal="true"
+        >
             <div class="slds-modal__container">
                 <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
                     <h2 class="slds-text-heading_medium" id="prompt-heading-id">Delete {!deletableLogs.size} Logs</h2>
                 </header>
                 <div class="slds-modal__content slds-p-around_medium" id="prompt-message-wrapper">
-                    <div class="slds-p-vertical_medium">
-                        Are you sure that you want to delete these logs?
-                    </div>
+                    <div class="slds-p-vertical_medium">Are you sure that you want to delete these logs?</div>
                     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_striped">
                         <thead>
                             <tr>
@@ -44,7 +49,7 @@
                                 <tr>
                                     <td><a href="{! '/' + deletableLog.Id}">{!deletableLog.Name}</a></td>
                                     <td><a href="{! '/' + deletableLog.LoggedBy__c}">{!deletableLog.LoggedBy__r.Name}</a></td>
-                                    <td><apex:outputField value="{!deletableLog.StartTime__c}"/></td>
+                                    <td><apex:outputField value="{!deletableLog.StartTime__c}" /></td>
                                     <td class="slds-text-align_right">{!deletableLog.TotalLogEntries__c}</td>
                                 </tr>
                             </apex:repeat>
@@ -54,7 +59,12 @@
                 <footer class="slds-modal__footer slds-theme_default">
                     <apex:form>
                         <apex:commandButton action="{!cancel}" value="Cancel" styleClass="slds-button slds-button_neutral" />
-                        <apex:commandButton action="{!deleteSelectedLogs}" onclick="showSuccessMessage();" value="Delete Logs" styleClass="slds-button slds-button_destructive" />
+                        <apex:commandButton
+                            action="{!deleteSelectedLogs}"
+                            onclick="showSuccessMessage();"
+                            value="Delete Logs"
+                            styleClass="slds-button slds-button_destructive"
+                        />
                     </apex:form>
                 </footer>
             </div>

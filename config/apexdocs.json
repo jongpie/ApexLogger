@@ -1,9 +1,6 @@
 {
     "root": "",
     "sourceLanguage": "java",
-    "home": {
-        "header": "./config/apexdocs-header.md"
-    },
     "content": {
         "startingHeadingLevel": 2,
         "includeAuthor": false,

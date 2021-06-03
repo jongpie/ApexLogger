@@ -4,51 +4,61 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Manages setting fields on `LogEntry__c` before insert & before update
  */
 public without sharing class LogEntryHandler {
+    // Trigger-based variables - tests can override these with mock objects
+    @testVisible
+    private List<LogEntry__c> logEntries;
+    @testVisible
+    private TriggerOperation triggerOperationType;
+
+    public LogEntryHandler() {
+        this.logEntries = (List<LogEntry__c>) Trigger.new;
+        this.triggerOperationType = Trigger.operationType;
+    }
+
     /**
-     * @description Runs the trigger handler's logic
+     * @description Runs the trigger handler's logic for the `LogEntry__c` custom object
      */
     public void execute() {
-        List<LogEntry__c> logEntries = (List<LogEntry__c>) Trigger.new;
-
-        switch on Trigger.operationType {
+        switch on this.triggerOperationType {
             when BEFORE_INSERT {
-                this.setBooleanCheckFields(logEntries);
+                this.setCheckboxFields();
 
                 // Only set the record names on initial insert - the RecordName__c field is then...
                 // a snapshot of the record's name at the time that the log entry was created
-                this.setRecordNames(logEntries);
+                this.setRecordNames();
             }
             when BEFORE_UPDATE {
-                this.setBooleanCheckFields(logEntries);
+                // Realistically, these checkbox fields probably only need to be set on insert...
+                // ...but some admins & devs might decide to update/append data in some of the related fields...
+                // ...and it conceptually feels weird for there to be scenarios where these fields could be inaccurate,
+                // ...so keep them up to date just to be safe
+                this.setCheckboxFields();
             }
         }
     }
 
-    private void setBooleanCheckFields(List<LogEntry__c> logEntries) {
-        // Maintain the checkbox fields on insert & update
-        // Some admins & devs might decide to update/append data in some of the fields...
-        // ...and it conceptually feels weird for these fields to not always be accurate, so keep them up to date
-
+    private void setCheckboxFields() {
         // A formula field can't be used for checking if a long text area field is set/null
         // So, this code handles maintaing some checkbox fields via Apex instead
-        for (LogEntry__c logEntry : logEntries) {
+        for (LogEntry__c logEntry : this.logEntries) {
             logEntry.HasExceptionStackTrace__c = logEntry.ExceptionStackTrace__c != null;
             logEntry.HasRecordJson__c = logEntry.RecordJson__c != null;
             logEntry.HasStackTrace__c = logEntry.StackTrace__c != null;
         }
     }
 
-    private void setRecordNames(List<LogEntry__c> logEntries) {
+    private void setRecordNames() {
         // Assumption - only valid record IDs will be populated in LogEntry__c.RecordId__c
         // If that changes, then extra checks may be needed before casting to Id, using getSObjectType(), etc.
+        // TODO: This method is pretty long & it's doing multiple things - consider breaking it up into separate methods or an inner class
 
         // 1. Figure out which SObjects & record IDs to query
         Map<Schema.SObjectType, List<Id>> sobjectTypeToRecords = new Map<Schema.SObjectType, List<Id>>();
-        for (LogEntry__c logEntry : logEntries) {
+        for (LogEntry__c logEntry : this.logEntries) {
             // Skip the log entry if there's no related record ID
             if (logEntry.RecordId__c == null) {
                 continue;
@@ -90,7 +100,7 @@ public without sharing class LogEntryHandler {
         }
 
         // 3. Finally, save the record name on the log entry
-        for (LogEntry__c logEntry : logEntries) {
+        for (LogEntry__c logEntry : this.logEntries) {
             // Skip the log entry if there's no related record ID
             if (logEntry.RecordId__c == null) {
                 continue;

@@ -1,0 +1,13 @@
+{
+    "orgName": "Nebula Logger - Enterprise Scratch Org",
+    "edition": "Enterprise",
+    "hasSampleData": true,
+    "country": "US",
+    "language": "en_US",
+    "features": ["Communities"],
+    "settings": {
+        "communitiesSettings": {
+            "enableNetworksEnabled": true
+        }
+    }
+}

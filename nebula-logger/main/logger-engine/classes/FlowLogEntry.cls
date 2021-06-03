@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group logger-engine
+ * @group Logger Engine
  * @description Handles adding new log entries in Flow
  * @see FlowRecordLogEntry
  * @see Logger

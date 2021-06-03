@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group logger-engine
+ * @group Logger Engine
  * @description Handles adding new log entries in Flow for a particular `SObject` record
  * @see FlowLogEntry
  * @see Logger

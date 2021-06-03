@@ -2,59 +2,123 @@
 name: Deployment
 
 on:
-  push:
-    paths-ignore:
-      - 'sfdx-project.json'
-      - 'README.md'
-      - 'Contributing.md'
-      - 'CODE_OF_CONDUCT.md'
-      - 'package.json'
-      - 'LICENSE'
-      - 'content/**'
-      - 'examples/**'
-      - 'managed-package/**'
-      - '.gitignore'
-      - '.prettierignore'
-      - '.prettierrc'
+    push:
+        paths-ignore:
+            - 'content/**'
+            - 'docs/**'
+            - 'examples/**'
+            - 'packages/**'
+            - '.forceignore'
+            - '.gitignore'
+            - '.prettierignore'
+            - '.prettierrc'
+            - 'Contributing.md'
+            - 'LICENSE'
+            - 'package.json'
+            - 'README.md'
+            - 'sfdx-project.json'
 
 jobs:
-  scratch-org-test:
-    runs-on: ubuntu-latest
-    environment: Test
-    steps:
-      # Checkout the code
-      - name: 'Checkout source code'
-        uses: actions/checkout@v2
+    scratch-org-test:
+        runs-on: ubuntu-latest
+        environment: Test
+        steps:
+            # Checkout the code
+            - name: 'Checkout source code'
+              uses: actions/checkout@v2
 
-      - name: 'Setup node'
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+            - name: 'Setup node'
+              uses: actions/setup-node@v2
+              with:
+                  node-version: '14'
 
-      - name: 'Install NPM'
-        run: npm install
+            - name: 'Install npm'
+              run: npm install
 
-      # Install Salesforce CLI
-      - name: Install Salesforce CLI
-        run: |
-          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
-          mkdir sfdx-cli
-          tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
-          ./sfdx-cli/install
+            # Install Salesforce CLI
+            - name: Install Salesforce CLI
+              run: |
+                  wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+                  mkdir sfdx-cli
+                  tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
+                  ./sfdx-cli/install
 
-      # Store secret for dev hub
-      - name: 'Populate auth file with DEVHUB_SFDX_URL secret'
-        shell: bash
-        run: 'echo ${{ env.DEVHUB_SFDX_URL }} > ./DEVHUB_SFDX_URL.txt'
-        env:
-          DEVHUB_SFDX_URL: ${{ secrets.DEVHUB_SFDX_URL }}
+            # Start local testing
 
-      - name: 'Deploy & Test'
-        shell: pwsh
-        run: '. ./scripts/test.ps1'
+            # TODO uncomment
+            # Prettier formatting
+            # - name: 'Code formatting verification with Prettier'
+            #   run: npm run prettier:verify
 
-      # Upload code coverage data
-      - name: 'Upload code coverage for Apex to Codecov.io'
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+            # TODO uncomment
+            # Lint LWC
+            # - name: 'Lint Lightning Web Components'
+            #   run: npm run lint:lwc
+
+            # LWC unit tests
+            # TODO uncomment lwc testing once tests have been created
+            # - name: 'Run LWC Tests'
+            #   run: npm run test:lwc
+
+            # End local testing
+
+            # Start remote testing
+
+            # Store secrets for dev hubs
+            - name: 'Populate DevHub Auth Files'
+              shell: bash
+              run: |
+                  echo ${{ env.DEVHUB_SFDX_URL }} > ./DEVHUB_SFDX_URL.txt
+                  echo ${{ env.NEBULA_CI_DEVHUB_SFDX_URL }} > ./NEBULA_CI_DEVHUB_SFDX_URL.txt
+                  echo ${{ env.JONGPIE_DEVHUB_SFDX_URL }} > ./JONGPIE_DEVHUB_SFDX_URL.txt
+              env:
+                  DEVHUB_SFDX_URL: ${{ secrets.DEVHUB_SFDX_URL }}
+                  NEBULA_CI_DEVHUB_SFDX_URL: ${{ secrets.NEBULA_CI_DEVHUB_SFDX_URL }}
+                  JONGPIE_DEVHUB_SFDX_URL: ${{ secrets.JONGPIE_DEVHUB_SFDX_URL }}
+
+            - name: 'Authorize Dev Hubs'
+              run: |
+                  sfdx auth:sfdxurl:store --sfdxurlfile ./DEVHUB_SFDX_URL.txt --setalias nebula-logger-packaging --setdefaultdevhubusername
+                  sfdx auth:sfdxurl:store --sfdxurlfile ./NEBULA_CI_DEVHUB_SFDX_URL.txt --setalias nebula-ci-devhub
+                  sfdx auth:sfdxurl:store --sfdxurlfile ./JONGPIE_DEVHUB_SFDX_URL.txt --setalias jongpie-devhub
+
+            - name: 'Create Scratch Org with Experience Sites Enabled'
+              run: npm run org:create:experience -- -durationdays 1 -devhubs nebula-logger-packaging,nebula-ci-devhub,jongpie-devhub
+
+            - name: 'Create Test Experience Site'
+              run: npm run experience:create
+
+            - name: 'Wait for Experience Site creation'
+              uses: maddox/actions/sleep@master
+              with:
+                  args: '120'
+
+            - name: 'Deploy Metadata'
+              run: npm run deploy
+
+            - name: 'Run Apex Tests'
+              run: npm run test:apex
+
+            - name: 'Delete Scratch Org'
+              run: npm run org:delete:noprompt
+              if: ${{ always() }}
+
+            # TODO uncomment
+            # - name: 'Create unvalidated unlocked package version'
+            #   run: npm run package:version:create:unlocked:skipvalidation
+
+            # - name: 'Create unvalidated managed package version'
+            #   run: npm run package:version:create:managed:skipvalidation
+
+            # TODO uncomment
+            # - name: 'Create validated unlocked package version'
+            #   run: npm run package:version:create:unlocked
+
+            - name: 'Generate Docs'
+              run: npm run docs:generate
+
+            # Upload code coverage data
+            - name: 'Upload code coverage for Apex to Codecov.io'
+              uses: codecov/codecov-action@v1
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}

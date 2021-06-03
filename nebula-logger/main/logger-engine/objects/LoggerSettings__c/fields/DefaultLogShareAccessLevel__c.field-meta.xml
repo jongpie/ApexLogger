@@ -1,15 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>DefaultLogShareAccessLevel__c</fullName>
     <defaultValue>&apos;Read&apos;</defaultValue>
-    <description>Uses Apex managed sharing to grants users read or edit access to their log records (on insert only). When no access level is specified, no Apex sharing logic is executed. This only gives record-level access - users will still need to be granted access to the Log__c object using permission sets or profiles.
+    <description
+    >Uses Apex managed sharing to grants users read or edit access to their log records (on insert only). When no access level is specified, no Apex sharing logic is executed. This only gives record-level access - users will still need to be granted access to the Log__c object using permission sets or profiles.
 
 Possible Values:
 (blank)
 Read
 Edit</description>
     <externalId>false</externalId>
-    <inlineHelpText>Uses Apex managed sharing to grants users read or edit access to their log records (on insert only). When no access level is specified, no Apex sharing logic is executed. This only gives record-level access - users will still need to be granted access to the Log__c object using permission sets or profiles.
+    <inlineHelpText
+    >Uses Apex managed sharing to grants users read or edit access to their log records (on insert only). When no access level is specified, no Apex sharing logic is executed. This only gives record-level access - users will still need to be granted access to the Log__c object using permission sets or profiles.
 
 Possible Values:
 (blank)

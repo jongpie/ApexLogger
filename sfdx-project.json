@@ -1,25 +1,25 @@
 {
-    "namespace": "Nebula",
+    "namespace": "",
     "sfdcLoginUrl": "https://login.salesforce.com",
     "sourceApiVersion": "51.0",
     "packageDirectories": [
         {
-            "package": "Nebula Logger",
+            "package": "Nebula Logger - Unlocked Package",
             "path": "nebula-logger",
             "default": true,
-            "definitionFile": "config/project-scratch-def.json",
-            "postInstallScript": "LoggerInstallHandler",
-            "versionName": "New Logger Console app, expanded Apex & Flow logging",
-            "versionNumber": "4.3.0.3",
-            "ancestorVersion": "4.2.0.0",
-            "versionDescription": "Includes new Logger Console app & reports for admins, automatic log sharing, and expanded logging for Apex & Flow",
+            "definitionFile": "config/project-scratch-def-with-experience-cloud.json",
+            "versionName": "LogBatchPurger Bugfixes",
+            "versionNumber": "4.4.5.0",
+            "versionDescription": "Fixes 2 issues in LogBatchPurger that could cause errors due to record chunking and query limits",
             "releaseNotesUrl": "https://github.com/jongpie/NebulaLogger/releases"
         }
     ],
     "packageAliases": {
-        "Nebula Logger": "0Ho5Y000000XZCDSA4",
-        "Nebula Logger@4.0.0-9-managed-package-release": "04t5Y000000XJZ7QAO",
-        "Nebula Logger@4.2.0-0-more-fields-and-methods": "04t5Y000000Xg4wQAC",
-        "Nebula Logger@4.3.0-3-logger-console-app": "04t5Y000000YLDLQA4"
+        "Nebula Logger - Unlocked Package": "0Ho5Y000000TNKASA4",
+        "Nebula Logger - Unlocked Package@4.4.1-3-unlocked-package-release": "04t5Y0000027FGFQA2",
+        "Nebula Logger - Unlocked Package@4.4.2-0-topics-overloads-cleanup": "04t5Y0000027FGeQAM",
+        "Nebula Logger - Unlocked Package@4.4.3-0-guest-user-bugfix": "04t5Y0000027FI1QAM",
+        "Nebula Logger - Unlocked Package@4.4.4-0-timestamp-bugfix": "04t5Y0000027FIQQA2",
+        "Nebula Logger - Unlocked Package@4.4.5-0-log-batch-purger-bugfixes": "04t5Y0000027FIVQA2"
     }
 }

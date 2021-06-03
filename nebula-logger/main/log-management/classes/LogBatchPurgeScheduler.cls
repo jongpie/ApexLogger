@@ -4,13 +4,13 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group log-management
+ * @group Log Management
  * @description Schedulable class used to schedule the batch job `LogBatchPurger`
  * @see LogBatchPurger
  */
 global with sharing class LogBatchPurgeScheduler implements System.Schedulable {
     global void execute(SchedulableContext schedulableContext) {
-        if (LoggerSettings__c.getInstance().EnableSystemMessages__c == true) {
+        if (Logger.getUserSettings().EnableSystemMessages__c == true) {
             LogMessage logMessage = new LogMessage('Scheduling LogBatchPurgeScheduler job, schedulableContext=={0}', schedulableContext);
             Logger.info(logMessage);
             Logger.saveLog();

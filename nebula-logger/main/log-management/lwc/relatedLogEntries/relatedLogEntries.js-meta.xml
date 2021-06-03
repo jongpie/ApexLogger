@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
     <masterLabel>Related Log Entries</masterLabel>
     <description>Displays a related list of log entries for the current record.</description>
@@ -9,18 +9,8 @@
     </targets>
     <targetConfigs>
         <targetConfig targets="lightning__RecordPage">
-            <property
-                name="fieldSetName"
-                label="Log Entry Field Set"
-                type="String"
-                datasource="apex://LogEntryFieldSetPicklist"
-            />
-            <property
-                name="rowLimit"
-                label="Max Number of Log Entries to Display"
-                type="Integer"
-                default="30"
-            />
+            <property name="fieldSetName" label="Log Entry Field Set" type="String" datasource="apex://LogEntryFieldSetPicklist" />
+            <property name="rowLimit" label="Max Number of Log Entries to Display" type="Integer" default="30" />
         </targetConfig>
     </targetConfigs>
 </LightningComponentBundle>

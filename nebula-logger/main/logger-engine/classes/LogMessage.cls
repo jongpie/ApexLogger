@@ -4,7 +4,7 @@
 //------------------------------------------------------------------------------------------------//
 
 /**
- * @group logger-engine
+ * @group Logger Engine
  * @description Provides the ability to generate string messages on demand, using String.format()
  * @see Logger
  * @see LogEntryEventBuilder

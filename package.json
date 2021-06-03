@@ -1,13 +1,41 @@
 {
     "name": "nebula-logger",
-    "version": "4.3.0",
-    "description": "Fine-tune your logging in Apex, Flow, and Process Builder",
-    "main": "index.js",
+    "version": "4.4.5",
+    "description": "Designed for Salesforce admins, developers & architects. A robust logger for Apex, Flow, Process Builder & Integrations.",
     "scripts": {
-        "format": "prettier --write nebula-logger",
-        "pretest": "node ./scripts/findTests.js",
-        "test": "sh ./scripts/test.sh",
-        "posttest": "node scripts/findTestsCleanup.js"
+        "deploy": "npm run deploy:logger && npm run deploy:managedpackage && npm run deploy:extratests",
+        "deploy:logger": "sfdx force:source:deploy --sourcepath ./nebula-logger/",
+        "deploy:extratests": "sfdx force:source:deploy --sourcepath ./extra-tests/",
+        "deploy:managedpackage": "sfdx force:source:deploy --sourcepath ./packages/managed-package/metadata",
+        "devhub:details": "pwsh ./scripts/get-devhub-org-details.ps1",
+        "devhub:limits": "pwsh ./scripts/get-devhub-org-limits.ps1",
+        "devhub:open": "pwsh ./scripts/open-devhub-org.ps1",
+        "docs:generate": "pwsh ./scripts/generate-docs.ps1",
+        "experience:create": "sfdx force:community:create --name \"Logger Test Site\" --templatename \"Customer Service\" --urlpathprefix logger --description \"Logger Test Site\"",
+        "lint": "npm run lint:lwc && npm run lint:aura",
+        "lint:aura": "eslint **/aura/**",
+        "lint:lwc": "eslint **/lwc/**",
+        "org:create": "pwsh ./scripts/create-scratch-org.ps1 -definitionfile ./config/project-scratch-def.json ",
+        "org:create:experience": "pwsh ./scripts/create-scratch-org.ps1 -definitionfile ./config/project-scratch-def-with-experience-cloud.json",
+        "org:delete": "sfdx force:org:delete --json",
+        "org:delete:noprompt": "sfdx force:org:delete --json --noprompt",
+        "org:details": "sfdx force:org:display --json --verbose",
+        "org:open": "sfdx force:org:open",
+        "package:version:create:managed": "pwsh .scripts/switch-to-managed-package-project-json.ps1 && sfdx force:package:version:create --json --package \"Nebula Logger - Managed Package\" --codecoverage --installationkeybypass --wait 30 && pwsh ./scripts/restore-unlocked-package-project-json.ps1",
+        "package:version:create:managed:skipvalidation": "pwsh ./scripts/switch-to-managed-package-project-json.ps1 && sfdx force:package:version:create --json --package \"Nebula Logger - Managed Package\" --skipvalidation --installationkeybypass --wait 30 && pwsh ./scripts/restore-unlocked-package-project-json.ps1",
+        "package:version:create:unlocked": "sfdx force:package:version:create --json --package \"Nebula Logger - Unlocked Package\" --codecoverage --installationkeybypass --wait 30",
+        "package:version:create:unlocked:skipvalidation": "sfdx force:package:version:create --json --package \"Nebula Logger - Unlocked Package\" --skipvalidation --installationkeybypass --wait 30",
+        "package:version:list": "sfdx force:package:version:list --json --verbose --orderby PatchVersion",
+        "package:version:list:released": "sfdx force:package:version:list --json --verbose --released --orderby PatchVersion",
+        "package:version:list:managed": "pwsh ./scripts/switch-to-managed-package-project-json.ps1 && sfdx force:package:version:list --json --verbose --orderby PatchVersion --packages \"Nebula Logger - Managed Package\" && pwsh ./scripts/restore-unlocked-package-project-json.ps1",
+        "package:version:list:managed:released": "pwsh ./scripts/switch-to-managed-package-project-json.ps1 && sfdx force:package:version:list --json --verbose --released --orderby PatchVersion --packages \"Nebula Logger - Managed Package\" && pwsh ./scripts/restore-unlocked-package-project-json.ps1",
+        "package:version:list:unlocked": "sfdx force:package:version:list --json --verbose --orderby PatchVersion --packages \"Nebula Logger - Unlocked Package\"",
+        "package:version:list:unlocked:released": "sfdx force:package:version:list --json --verbose --released --orderby PatchVersion --packages \"Nebula Logger - Unlocked Package\"",
+        "prettier": "prettier --write \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+        "prettier:verify": "prettier --list-different \"**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}\"",
+        "test": "npm run test:lwc && npm run test:apex",
+        "test:apex": "sfdx force:apex:test:run --testlevel RunLocalTests --wait 30 --resultformat human --codecoverage --outputdir ./tests/apex",
+        "test:lwc": "sfdx-lwc-jest --coverage"
     },
     "repository": {
         "type": "git",
@@ -19,7 +47,8 @@
         "logging-library",
         "salesforce",
         "salesforce-lightning",
-        "salesforce-apex"
+        "salesforce-apex",
+        "salesforce-flow"
     ],
     "author": "Jonathan Gillespie",
     "license": "MIT",
@@ -27,11 +56,37 @@
         "url": "https://github.com/jongpie/NebulaLogger/issues"
     },
     "homepage": "https://github.com/jongpie/NebulaLogger#readme",
-    "devDependencies": {
-        "prettier": "^2.2.1",
-        "prettier-plugin-apex": "^1.8.0"
+    "engines": {
+        "node": ">= 12.18.0",
+        "npm": ">= 6.14.0"
     },
-    "dependencies": {
-        "@cparra/apexdocs": "^1.11.0"
+    "devDependencies": {
+        "@cparra/apexdocs": "latest",
+        "@prettier/plugin-xml": "latest",
+        "@salesforce/eslint-config-lwc": "latest",
+        "@salesforce/eslint-plugin-aura": "latest",
+        "@salesforce/sfdx-lwc-jest": "latest",
+        "@salesforce/sfdx-scanner": "latest",
+        "eslint": "latest",
+        "eslint-config-prettier": "latest",
+        "husky": "latest",
+        "lint-staged": "latest",
+        "prettier": "latest",
+        "prettier-plugin-apex": "latest",
+        "pwsh": "latest"
+    },
+    "dependencies": {},
+    "husky": {
+        "hooks": {
+            "pre-commit": "lint-staged"
+        }
+    },
+    "lint-staged": {
+        "**/*.{cls,cmp,component,css,html,js,json,md,page,trigger,xml,yaml,yml}": [
+            "prettier --write"
+        ],
+        "**/{aura|lwc}/**": [
+            "eslint"
+        ]
     }
 }
