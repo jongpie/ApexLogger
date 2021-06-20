@@ -15,19 +15,17 @@ global with sharing class LogEntryEventBuilder {
     private static final String NAMESPACE_PREFIX = getNamespacePrefix();
     private static final SObject NETWORK_SITE = getNetwork();
     private static final Organization ORGANIZATION = getOrganization();
-    private static final String ORIGIN_TYPE_APEX = 'Apex';
-    // TODO future enhancement: consider converting strings to enum and add overload for `parseStackTrace(OriginType, String)
-    // private static final String ORIGIN_TYPE_COMPONENT = 'Component';
-    // private static final String ORIGIN_TYPE_FLOW = 'Flow';
-    private static final User USER = getUser();
     private static final Map<String, String> SOBJECT_NAME_TO_CLASSIFICATION = new Map<String, String>();
     private static final Map<String, String> SOBJECT_SUFFIX_TO_CLASSIFICATION = getSObjectSuffixToClassification();
+    private static final User USER = getUser();
 
     private final LogEntryEvent__e logEntryEvent;
     private final LoggingLevel entryLoggingLevel;
 
     private Boolean detailsAreSet = false;
     private Boolean shouldSave;
+    private List<String> topics = new List<String>();
+    private Boolean topicsAreSet = false;
 
     /**
      * @description Used by `Logger` to instantiate a new instance of `LogEntryEventBuilder`
@@ -62,7 +60,7 @@ global with sharing class LogEntryEventBuilder {
             LimitsSoslSearchesUsed__c = Limits.getSoslQueries(),
             LoggingLevel__c = entryLoggingLevel.NAME(),
             LoggingLevelOrdinal__c = entryLoggingLevel.ORDINAL(),
-            OriginType__c = ORIGIN_TYPE_APEX,
+            OriginType__c = 'Apex',
             Timestamp__c = System.now(),
             EpochTimestamp__c = System.now().getTime(),
             TriggerIsExecuting__c = Trigger.isExecuting,
@@ -385,6 +383,31 @@ global with sharing class LogEntryEventBuilder {
     }
 
     /**
+     * @description Adds a list of strings to any existing topics as a comma-separate list of strings on the LogEntryEvent__e, which ultimately becomes Topic & TopicAssignment records on Log__c and LogEntry__c
+     * @param  topics The list of strings to use as topics for the current entry
+     * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
+     */
+    public LogEntryEventBuilder addTopic(String topic) {
+        return this.addTopics(new List<String>{ topic });
+    }
+
+    /**
+     * @description Adds a list of strings to any existing topics as a comma-separate list of strings on the LogEntryEvent__e, which ultimately becomes Topic & TopicAssignment records on Log__c and LogEntry__c
+     * @param  topics The list of strings to use as topics for the current entry
+     * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
+     */
+    public LogEntryEventBuilder addTopics(List<String> topics) {
+         if (this.shouldSave == false) {
+            return this;
+        }
+
+        this.topics.addAll(topics);
+        this.topicsAreSet = false;
+
+        return this;
+    }
+
+    /**
      * @description Sets a comma-separate list of strings on the LogEntryEvent__e, which ultimately becomes Topic & TopicAssignment records on Log__c and LogEntry__c
      * @param  topics The list of strings to use as topics for the current entry
      * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
@@ -394,7 +417,9 @@ global with sharing class LogEntryEventBuilder {
             return this;
         }
 
-        this.logEntryEvent.Topics__c = getTopicsString(topics);
+        this.topics = topics;
+        this.topicsAreSet = false;
+
         return this;
     }
 
@@ -475,6 +500,12 @@ global with sharing class LogEntryEventBuilder {
             this.setUserSessionDetails();
 
             this.detailsAreSet = true;
+        }
+
+        if (this.topicsAreSet == false) {
+            this.logEntryEvent.Topics__c = getTopicsString(topics);
+
+            this.topicsAreSet = true;
         }
 
         // Salesforce does not provide precise datetimes in Apex triggers for platform events
@@ -766,6 +797,6 @@ global with sharing class LogEntryEventBuilder {
         // De-duplicate the list of topics
         topics = new List<String>(new Set<String>(topics));
 
-        return String.escapeSingleQuotes(String.join(topics, ','));
+        return String.escapeSingleQuotes(String.join(topics, '\n'));
     }
 }

@@ -216,8 +216,8 @@ public without sharing class LogEntryEventHandler extends LoggerSObjectHandler {
             this.logEntries.add(logEntry);
 
             if (logEntryEvent.Topics__c != null) {
-                this.topicNames.addAll(logEntryEvent.Topics__c.split(','));
-                this.logEntryToTopics.put(logEntry, LogEntryEvent.Topics__c.split(','));
+                this.topicNames.addAll(logEntryEvent.Topics__c.split('\n'));
+                this.logEntryToTopics.put(logEntry, LogEntryEvent.Topics__c.split('\n'));
             }
         }
 
