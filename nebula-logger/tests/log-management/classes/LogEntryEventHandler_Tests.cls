@@ -475,15 +475,15 @@ private class LogEntryEventHandler_Tests {
     }
 
     @isTest
-    static void it_should_create_topic_and_topicAssignment_records() {
+    static void it_should_create_tag_and_topicAssignment_records() {
         String transactionId = '123-456-789-0';
 
-        List<String> topics = new List<String>{ 'test-topic-1', 'test-topic-2' };
+        List<String> tags = new List<String>{ 'test-tag-1', 'test-tag-2' };
         LogEntryEvent__e logEntryEvent = new LogEntryEvent__e(
             EpochTimestamp__c = System.now().getTime(),
             Message__c = 'my message',
             Timestamp__c = System.now(),
-            Topics__c = String.join(topics, ','),
+            Tags__c = String.join(tags, '\n'),
             TransactionEntryNumber__c = 1,
             TransactionId__c = transactionId
         );
@@ -502,10 +502,10 @@ private class LogEntryEventHandler_Tests {
         validateLogFields(logEntryEvent, log);
         validateLogEntryFields(logEntryEvent, logEntry);
 
-        Set<String> topicsSet = new Set<String>(topics);
+        Set<String> tagsSet = new Set<String>(tags);
         List<TopicAssignment> topicAssignments = [SELECT Id, EntityId, TopicId, Topic.Name FROM TopicAssignment WHERE EntityId = :logEntry.Id];
         for (TopicAssignment topicAssignment : topicAssignments) {
-            System.assert(topicsSet.contains(topicAssignment.Topic.Name));
+            System.assert(tagsSet.contains(topicAssignment.Topic.Name));
         }
     }
 

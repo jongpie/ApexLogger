@@ -84,13 +84,17 @@ public without sharing class LogHandler extends LoggerSObjectHandler {
         // Source: https://help.salesforce.com/articleView?id=000357271&type=1&mode=1
         // And no need for this to be static since it's only used internally for BEFORE_INSERT context
         String apiVersion = JSON.serialize(new User(Id = UserInfo.getUserId())).substringAfter('/data/').substringBefore('/sobjects/User');
-        Set<String> previewInstances = new Set<String>( LoggerParameter.Handler.getStringList('LogHandler_PreviewInstances_' + apiVersion, new List<String>()));
-        Set<String> nonPreviewInstances = new Set<String>( LoggerParameter.Handler.getStringList('LogHandler_NonPreviewInstances_' + apiVersion, new List<String>()));
+        Set<String> previewInstances = new Set<String>(LoggerParameter.Handler.getStringList('LogHandler_PreviewInstances_' + apiVersion, new List<String>()));
+        Set<String> nonPreviewInstances = new Set<String>(
+            LoggerParameter.Handler.getStringList('LogHandler_NonPreviewInstances_' + apiVersion, new List<String>())
+        );
 
         String releaseCycle;
 
         for (Log__c log : this.logs) {
-            if (log.OrganizationInstanceName__c == 'Production' || nonPreviewInstances != null && nonPreviewInstances.contains(log.OrganizationInstanceName__c)) {
+            if (
+                log.OrganizationInstanceName__c == 'Production' || nonPreviewInstances != null && nonPreviewInstances.contains(log.OrganizationInstanceName__c)
+            ) {
                 releaseCycle = 'Non-Preview Instance';
             } else if (previewInstances != null && previewInstances.contains(log.OrganizationInstanceName__c)) {
                 releaseCycle = 'Preview Instance';

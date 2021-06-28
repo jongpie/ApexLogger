@@ -9,6 +9,16 @@
  * @see LogBatchPurger
  */
 global with sharing class LogBatchPurgeScheduler implements System.Schedulable {
+    private Integer batchSize;
+
+    global LogBatchPurgeScheduler() {
+        this(200);
+    }
+
+    global LogBatchPurgeScheduler(Integer batchSize) {
+        this.batchSize = batchSize;
+    }
+
     global void execute(SchedulableContext schedulableContext) {
         if (Logger.getUserSettings().EnableSystemMessages__c == true) {
             LogMessage logMessage = new LogMessage('Scheduling LogBatchPurgeScheduler job, schedulableContext=={0}', schedulableContext);
@@ -16,6 +26,6 @@ global with sharing class LogBatchPurgeScheduler implements System.Schedulable {
             Logger.saveLog();
         }
 
-        Database.executebatch(new LogBatchPurger());
+        Database.executebatch(new LogBatchPurger(), this.batchSize);
     }
 }

@@ -181,6 +181,7 @@
         <excludedStandardButtons>New</excludedStandardButtons>
         <excludedStandardButtons>OpenListInQuip</excludedStandardButtons>
         <excludedStandardButtons>Accept</excludedStandardButtons>
+        <excludedStandardButtons>Import</excludedStandardButtons>
         <excludedStandardButtons>PrintableListView</excludedStandardButtons>
         <listViewButtons>MassDelete</listViewButtons>
         <lookupDialogsAdditionalFields>LoggedByUsernameLink__c</lookupDialogsAdditionalFields>

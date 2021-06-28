@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <TopicsForObjects xmlns="http://soap.sforce.com/2006/04/metadata">
-    <enableTopics>true</enableTopics>
+    <enableTopics>false</enableTopics>
     <entityApiName>LogEntry__c</entityApiName>
 </TopicsForObjects>

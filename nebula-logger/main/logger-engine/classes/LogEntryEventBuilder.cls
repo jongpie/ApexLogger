@@ -25,6 +25,7 @@ global with sharing class LogEntryEventBuilder {
 
     private Boolean detailsAreSet = false;
     private Boolean shouldSave;
+    private List<String> tags = new List<String>();
 
     /**
      * @description Used by `Logger` to instantiate a new instance of `LogEntryEventBuilder`
@@ -385,17 +386,39 @@ global with sharing class LogEntryEventBuilder {
     }
 
     /**
-     * @description Sets a comma-separate list of strings on the LogEntryEvent__e, which ultimately becomes Topic & TopicAssignment records on Log__c and LogEntry__c
-     * @param  topics The list of strings to use as topics for the current entry
+     * @description Appends the tag to the existing list of tags
+     * @param  tags The string to use as a tag for the current entry
      * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
      */
-    public LogEntryEventBuilder setTopics(List<String> topics) {
-        if (this.shouldSave == false) {
+    global LogEntryEventBuilder addTag(String tag) {
+        if (this.shouldSave == false || String.isBlank(tag)) {
             return this;
         }
 
-        this.logEntryEvent.Topics__c = getTopicsString(topics);
+        this.tags.add(tag);
         return this;
+    }
+
+    /**
+     * @description Appends the tag to the existing list of tags
+     * @param  tags The string to use as a tag for the current entry
+     * @return        The same instance of `LogEntryEventBuilder`, useful for chaining methods
+     */
+    global LogEntryEventBuilder addTags(List<String> tags) {
+        if (this.shouldSave == false || tags == null || tags.isEmpty()) {
+            return this;
+        }
+
+        this.tags.addAll(tags);
+        return this;
+    }
+
+    /**
+     * @description Deprecated - use `setTags(List<String> tags)` instead.
+     *              This method will be removed in a future release
+     */
+    public LogEntryEventBuilder setTopics(List<String> tags) {
+        return this.addTags(tags);
     }
 
     /**
@@ -476,6 +499,8 @@ global with sharing class LogEntryEventBuilder {
 
             this.detailsAreSet = true;
         }
+
+        this.logEntryEvent.Tags__c = getTagsString(this.tags);
 
         // Salesforce does not provide precise datetimes in Apex triggers for platform events
         // Set the string value of timestamp to a second field as a workaround
@@ -756,14 +781,14 @@ global with sharing class LogEntryEventBuilder {
         return true;
     }
 
-    private static String getTopicsString(List<String> topics) {
-        if (topics == null || topics.isEmpty()) {
+    private static String getTagsString(List<String> tags) {
+        if (tags == null || tags.isEmpty()) {
             return null;
         }
 
-        // De-duplicate the list of topics
-        topics = new List<String>(new Set<String>(topics));
+        // De-duplicate the list of tags
+        tags = new List<String>(new Set<String>(tags));
 
-        return String.escapeSingleQuotes(String.join(topics, ','));
+        return String.escapeSingleQuotes(String.join(tags, '\n'));
     }
 }

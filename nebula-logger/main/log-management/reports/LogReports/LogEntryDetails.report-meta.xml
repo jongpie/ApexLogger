@@ -82,6 +82,7 @@
     <columns>
         <field>LogEntry__c.ExceptionStackTrace__c</field>
     </columns>
+    <description>Detailed report for the LogEntry__c object</description>
     <filter>
         <criteriaItems>
             <column>LogEntry__c.Timestamp__c</column>

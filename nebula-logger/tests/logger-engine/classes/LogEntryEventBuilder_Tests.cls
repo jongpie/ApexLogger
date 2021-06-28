@@ -78,7 +78,7 @@ private class LogEntryEventBuilder_Tests {
         System.assertEquals(null, builder.setRecord(UserInfo.getUserId()).getLogEntryEvent());
         System.assertEquals(null, builder.setRecord(new User(Id = UserInfo.getUserId())).getLogEntryEvent());
         System.assertEquals(null, builder.setRecord(new List<User>{new User(Id = UserInfo.getUserId())}).getLogEntryEvent());
-        System.assertEquals(null, builder.setTopics(new List<String>{'topic-1', 'topic-2'}).getLogEntryEvent());
+        System.assertEquals(null, builder.addTags(new List<String>{'tag-1', 'tag-2'}).getLogEntryEvent());
         System.assertEquals(null, builder.parseStackTrace(new DmlException().getStackTraceString()).getLogEntryEvent());
     }
 
@@ -781,35 +781,35 @@ private class LogEntryEventBuilder_Tests {
     }
 
     @isTest
-    static void it_should_set_topics_string_for_list_of_topics() {
+    static void it_should_set_tags_string_for_list_of_tags() {
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
-        System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
+        System.assertEquals(null, builder.getLogEntryEvent().Tags__c);
 
         Test.startTest();
 
-        List<String> topics = new List<String>{ 'some-topic', 'another One', 'here\'s one more!' };
-        builder.setTopics(topics);
+        List<String> tags = new List<String>{ 'some-tag', 'another One', 'here\'s one more!' };
+        builder.addTags(tags);
 
         Test.stopTest();
 
-        String expectedTopicsString = String.escapeSingleQuotes(String.join(topics, ','));
-        System.assertEquals(expectedTopicsString, builder.getLogEntryEvent().Topics__c);
+        String expectedTagsString = String.escapeSingleQuotes(String.join(tags, '\n'));
+        System.assertEquals(expectedTagsString, builder.getLogEntryEvent().Tags__c);
     }
 
     @isTest
-    static void it_should_deduplicate_topics() {
+    static void it_should_deduplicate_tags() {
         LogEntryEventBuilder builder = new LogEntryEventBuilder(LoggingLevel.INFO, true);
-        System.assertEquals(null, builder.getLogEntryEvent().Topics__c);
+        System.assertEquals(null, builder.getLogEntryEvent().Tags__c);
 
         Test.startTest();
 
-        List<String> topics = new List<String>{ 'duplicate-topic', 'duplicate-topic', 'another One' };
-        builder.setTopics(topics);
+        List<String> tags = new List<String>{ 'duplicate-tag', 'duplicate-tag', 'another One' };
+        builder.addTags(tags);
 
         Test.stopTest();
 
-        String expectedTopicsString = 'duplicate-topic,another One';
-        System.assertEquals(expectedTopicsString, builder.getLogEntryEvent().Topics__c);
+        String expectedTagsString = 'duplicate-tag\nanother One';
+        System.assertEquals(expectedTagsString, builder.getLogEntryEvent().Tags__c);
     }
 
     @isTest

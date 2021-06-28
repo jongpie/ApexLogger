@@ -125,6 +125,7 @@
     <columns>
         <field>Log__c.ApiReleaseVersion__c</field>
     </columns>
+    <description>Detailed report for the Log__c object</description>
     <filter>
         <criteriaItems>
             <column>Log__c.StartTime__c</column>

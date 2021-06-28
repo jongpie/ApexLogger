@@ -346,6 +346,77 @@ Within Flow (and Process Builder), there are 4 invocable actions that you can us
 
 ---
 
+## Tagging Your Log Entries
+
+Nebula Logger supports dynamically tagging/labeling your `LogEntry__c` records via Apex and Flow. Tags can then be stored using one of the two supported modes (discussed below).
+
+### Adding Tags in Apex
+
+// TODO LogEntryEventBuilder.addTag(String tagName) and addTags(List<String> tagNames)
+
+### Adding Tags in Flow
+
+// TODO example screenshot of Flow builder setting tags
+
+### Choosing a Tagging Mode
+
+Once you've implementing log entry tagging within Apex or Flow, you can choose how the tags are stored within your org. Each mode has its own pros and cons - you can also build your own plugin if you want to leverage your own tagging system (note: plugins are not currently available in the managed package).
+
+<table>
+    <thead>
+        <tr>
+            <th><strong>Tagging Mode</strong></th>
+            <th>Logger's Custom Tagging Objects (Default)</th>
+            <th>Salesforce <code>Topic</code> and <code>TopicAssignment</code> Objects</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Summary</td>
+            <td>Stores your tags in custom objects <code>LoggerTag__c</code> and <code>LogEntryTag__c</code></td>
+            <td>Leverages Salesforce's <a href="https://www.salesforce.com/products/chatter/features/online-collaboration-tools">Chatter Topics functionality</a> to store your tags. This mode is not available in the managed package.</td>
+        </tr>
+        <tr>
+            <td>Data Model</td>
+            <td>
+                <ul>
+                    <li><code>LoggerTag__c</code>: this represents the actual tag you want to apply to your log entry record. Tags are unique, based on the field <code>LoggerTag__c.Name</code> - uniqueness is enforced using duplicate rules. The logging system will automatically create <code>LoggerTag__c</code> records if a matching record does not already exist in your org.</li>
+                    <li><code>LogEntryTag__c</code>: a junction object between <code>LoggerTag__c</code> and <code>LogEntry__c</code></li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li><code>Topic</code>: a standard object, used to tag any Salesforce record (with Topics enabled). This object is used similar to how <code>LoggerTag__c</code> is used. See <a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_topic.htm">object reference docs for more details</a></li>
+                    <li><code>TopicAssignment</code>: a junction object between a <code>Topic</code> record and any (supported) SObject, using a polymorphic <code>EntityId</code> field. See <a href="https://developer.salesforce.com/docs/atlas.en-us.object_reference.meta/object_reference/sforce_api_objects_topicassignment.htm">object reference docs for more details</a></li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>Data Visibility</td>
+            <td>
+                <ul>
+                    <li>Access to the <code>LoggerTag__c</code> object can be granted/restricted using standard Salesforce object and record-sharing functionality (OWD, sharing rules, profiles, permission sets, etc). By default, <code>LoggerTag__c</code> OWD is set to 'public read-only' for internal users and 'private' for external users</li>
+                    <li>Since <code>LogEntryTag__c</code> is junction object, access to these records is controlled by a user's access to the related <code>LogEntry__c</code> and <code>LoggerTag__c</code> records</li>
+                </ul>
+            </td>
+            <td>
+                <ul>
+                    <li>In Chatter, all <code>Topic</code> records are visible - including any <code>Topic</code> records created via Logger. For some orgs that are ok with this visibility within Chatter, this is considered a great feature. But for some orgs, this visibility may not be ideal.</li>
+                    <li>Although <code>Topic</code> records are visible to all Chatter users, <code>TopicAssignment</code> records are only visible to users that have access to the related <code>EntityId</code> (in this case, the <code>LogEntry__c</code> record)</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>Leveraging Data</td>
+            <td>Since the data is stored in custom objects, you can leverage any platform functionality you want, such as building custom list views, reports & dashboards, enabling Chatter feeds, creating activities/tasks, and so on.</a>
+            <td>Topics can be used to <a href="http://releasenotes.docs.salesforce.com/en-us/winter20/release-notes/rn_lex_lists_topic_filters.htm">filter list views</a>, which is a really useful feature. However, using Topics <a href="https://trailblazer.salesforce.com/ideaView?id=08730000000l12wAAA">in reports and dashboards is only partially implemented</a> at this time.
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+---
+
 ## Log Management
 
 ### Logger Console App
@@ -367,7 +438,7 @@ To help development and support teams better manage logs (and any underlying cod
     -   `Log__c.ClosedDate__c` - The datetime that the log was closed
     -   `Log__c.IsClosed__c` - Indicates if the log is closed, based on the selected status (and associated config in the 'Log Status' custom metadata type)
     -   `Log__c.IsResolved__c` - Indicates if the log is resolved (meaning that it required analaysis/work, which has been completed). Only closed statuses can be considered resolved. This is also driven based on the selected status (and associated config in the 'Log Status' custom metadata type)
--   To customize the statuses provided, simply update the picklist values for `Log__c.Status__c` and create/update corresponding records in the custom metadata type `LogStatus__mdt`. This custom metadata type controls which statuses are considerd closed and resolved.
+-   To customize the statuses provided, simply update the picklist values for `Log__c.Status__c` and create/update corresponding records in the custom metadata type `LogStatus__mdt`. This custom metadata type controls which statuses are considered closed and resolved.
 
 ---
 

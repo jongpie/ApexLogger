@@ -86,6 +86,10 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>LogEntryTagHandler</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>LogHandler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
@@ -114,11 +118,23 @@
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
+        <apexClass>LoggerParameter</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LoggerParameter_Tests</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
         <apexClass>LoggerSObjectHandler</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
         <apexClass>LoggerSObjectHandlerPlugin</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>LoggerSObjectHandlerPlugin_Tests</apexClass>
         <enabled>true</enabled>
     </classAccesses>
     <classAccesses>
@@ -546,6 +562,11 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
+        <field>LogEntryEvent__e.Tags__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
         <field>LogEntryEvent__e.ThemeDisplayed__c</field>
         <readable>true</readable>
     </fieldPermissions>
@@ -622,6 +643,31 @@
     <fieldPermissions>
         <editable>false</editable>
         <field>LogEntryEvent__e.UserType__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LogEntryTagRule__mdt.ComparisonValue__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LogEntryTagRule__mdt.IsEnabled__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LogEntryTagRule__mdt.Tags__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>LogEntryTag__c.Log__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>LogEntryTag__c.UniqueId__c</field>
         <readable>true</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1431,7 +1477,37 @@
     </fieldPermissions>
     <fieldPermissions>
         <editable>false</editable>
-        <field>LoggerSObjectHandler__mdt.IsEnabled__c</field>
+        <field>LoggerSObjectHandlerParameter__mdt.Description__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerParameter__mdt.IsEnabled__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerParameter__mdt.Value__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerPluginParameter__mdt.Description__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerPluginParameter__mdt.IsEnabled__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerPluginParameter__mdt.Value__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandlerPlugin__mdt.Description__c</field>
         <readable>false</readable>
     </fieldPermissions>
     <fieldPermissions>
@@ -1444,6 +1520,27 @@
         <field>LoggerSObjectHandlerPlugin__mdt.IsEnabled__c</field>
         <readable>false</readable>
     </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerSObjectHandler__mdt.IsEnabled__c</field>
+        <readable>false</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>false</editable>
+        <field>LoggerTag__c.TotalLogEntries__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <fieldPermissions>
+        <editable>true</editable>
+        <field>LoggerTag__c.UniqueId__c</field>
+        <readable>true</readable>
+    </fieldPermissions>
+    <layoutAssignments>
+        <layout>LogEntryTagRule__mdt-Logger Tag Rule Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>LogEntryTag__c-Log Entry Tag Layout</layout>
+    </layoutAssignments>
     <layoutAssignments>
         <layout>LogEntry__c-Log Entry Layout</layout>
     </layoutAssignments>
@@ -1454,10 +1551,19 @@
         <layout>Log__c-Log Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
-        <layout>LoggerSObjectHandler__mdt-Logger SObject Handler Layout</layout>
+        <layout>LoggerSObjectHandlerParameter__mdt-Logger SObject Handler Parameter Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>LoggerSObjectHandlerPluginParameter__mdt-Logger SObject Handler Plugin Parameter Layout</layout>
     </layoutAssignments>
     <layoutAssignments>
         <layout>LoggerSObjectHandlerPlugin__mdt-Logger SObject Handler Plugin Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>LoggerSObjectHandler__mdt-Logger SObject Handler Layout</layout>
+    </layoutAssignments>
+    <layoutAssignments>
+        <layout>LoggerTag__c-Logger Tag Layout</layout>
     </layoutAssignments>
     <objectPermissions>
         <allowCreate>true</allowCreate>
@@ -1466,6 +1572,15 @@
         <allowRead>true</allowRead>
         <modifyAllRecords>true</modifyAllRecords>
         <object>LogEntryEvent__e</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>LogEntryTag__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
     <objectPermissions>
@@ -1486,10 +1601,23 @@
         <object>Log__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <objectPermissions>
+        <allowCreate>true</allowCreate>
+        <allowDelete>true</allowDelete>
+        <allowEdit>true</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>true</modifyAllRecords>
+        <object>LoggerTag__c</object>
+        <viewAllRecords>true</viewAllRecords>
+    </objectPermissions>
     <pageAccesses>
         <apexPage>LogMassDelete</apexPage>
         <enabled>true</enabled>
     </pageAccesses>
+    <tabVisibilities>
+        <tab>LogEntryTag__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
     <tabVisibilities>
         <tab>LogEntry__c</tab>
         <visibility>DefaultOn</visibility>
@@ -1498,5 +1626,8 @@
         <tab>Log__c</tab>
         <visibility>DefaultOn</visibility>
     </tabVisibilities>
-    <userLicense>Salesforce</userLicense>
+    <tabVisibilities>
+        <tab>LoggerTag__c</tab>
+        <visibility>DefaultOn</visibility>
+    </tabVisibilities>
 </Profile>

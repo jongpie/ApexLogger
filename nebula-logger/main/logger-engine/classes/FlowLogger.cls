@@ -25,7 +25,8 @@ public inherited sharing class FlowLogger {
         public String message;
         public String faultMessage;
         public String loggingLevelName;
-        public List<String> topics;
+        public List<String> tags;
+        public List<String> topics; // TODO: deprecated, remove in a future release
         public Boolean saveLog = false;
         public DateTime timestamp;
 
@@ -49,7 +50,7 @@ public inherited sharing class FlowLogger {
             }
 
             this.loggingLevel = Logger.getLoggingLevel(this.loggingLevelName);
-            this.logEntryEventBuilder = Logger.newEntry(this.loggingLevel, this.message).setTopics(this.topics);
+            this.logEntryEventBuilder = Logger.newEntry(this.loggingLevel, this.message).setTopics(this.topics).addTags(this.tags);
             this.logEntryEvent = logEntryEventBuilder.getLogEntryEvent();
 
             if (this.logEntryEventBuilder.shouldSave() == false) {

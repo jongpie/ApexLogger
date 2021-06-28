@@ -4,10 +4,6 @@
     "sourceApiVersion": "52.0",
     "packageDirectories": [
         {
-            "path": "force-app",
-            "default": true
-        },
-        {
             "package": "Nebula Logger - Unlocked Package",
             "path": "nebula-logger",
             "default": false,
@@ -33,6 +29,10 @@
         {
             "path": "extra-tests",
             "default": false
+        },
+        {
+            "path": "force-app",
+            "default": true
         }
     ],
     "packageAliases": {

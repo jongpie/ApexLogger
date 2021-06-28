@@ -12,6 +12,7 @@
     <navType>Console</navType>
     <tabs>Log__c</tabs>
     <tabs>LogEntry__c</tabs>
+    <tabs>LoggerTag__c</tabs>
     <tabs>standard-report</tabs>
     <tabs>standard-Dashboard</tabs>
     <uiType>Lightning</uiType>
@@ -23,6 +24,9 @@
         </mappings>
         <mappings>
             <tab>Log__c</tab>
+        </mappings>
+        <mappings>
+            <tab>LoggerTag__c</tab>
         </mappings>
         <mappings>
             <tab>standard-Dashboard</tab>

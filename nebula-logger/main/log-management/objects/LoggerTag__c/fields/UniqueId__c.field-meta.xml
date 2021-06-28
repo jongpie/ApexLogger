@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>UniqueId__c</fullName>
+    <caseSensitive>false</caseSensitive>
+    <description>An external ID field used to ensure that Logger Tag records are unique</description>
+    <externalId>true</externalId>
+    <inlineHelpText>An external ID field used to ensure that Logger Tag records are unique</inlineHelpText>
+    <label>Unique ID</label>
+    <length>255</length>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>true</unique>
+</CustomField>

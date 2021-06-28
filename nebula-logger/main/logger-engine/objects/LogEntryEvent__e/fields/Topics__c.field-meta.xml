@@ -5,7 +5,7 @@
     <isFilteringDisabled>false</isFilteringDisabled>
     <isNameField>false</isNameField>
     <isSortingDisabled>false</isSortingDisabled>
-    <label>Topics</label>
+    <label>DEPRECATED: Topics</label>
     <length>131072</length>
     <type>LongTextArea</type>
     <visibleLines>8</visibleLines>
