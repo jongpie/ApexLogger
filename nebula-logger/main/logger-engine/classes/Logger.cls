@@ -85,7 +85,9 @@ global with sharing class Logger {
      * @param  parentTransactionId - The transaction ID of the original parent transaction
      */
     global static void setParentLogTransactionId(String parentTransactionId) {
-        parentLogTransactionId = parentTransactionId;
+        if (parentTransactionId != getTransactionId()) {
+            parentLogTransactionId = parentTransactionId;
+        }
     }
 
     /**

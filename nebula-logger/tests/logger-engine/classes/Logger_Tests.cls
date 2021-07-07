@@ -249,10 +249,17 @@ private class Logger_Tests {
     }
 
     @isTest
-    static void it_should_return_set_parent_transaction_id() {
+    static void it_should_set_parent_transaction_id() {
         String expectedParentTransactionId = 'imagineThisWereAGuid';
         Logger.setParentLogTransactionId(expectedParentTransactionId);
         System.assertEquals(expectedParentTransactionId, Logger.getParentLogTransactionId());
+    }
+
+    @isTest
+    static void it_should_ignore_parent_transaction_id_when_set_to_current_transaction_id() {
+        String currentTransactionId = Logger.getTransactionId();
+        Logger.setParentLogTransactionId(currentTransactionId);
+        System.assertEquals(null, Logger.getParentLogTransactionId());
     }
 
     @isTest
